@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "timestamp": "2026-09-23T14:57:45.345Z",
+  "timestamp": "2026-09-23T15:22:22.803Z",
   "environment": {
     "platform": "win32",
     "arch": "x64",
@@ -23,13 +23,13 @@
     }
   },
   "testSuiteResults": {
-    "timestamp": "2026-09-23T14:57:05.340Z",
+    "timestamp": "2026-09-23T15:22:00.105Z",
     "summary": {
       "total": 23,
       "passed": 23,
       "failed": 0,
       "passRate": "100%",
-      "durationMs": 13438,
+      "durationMs": 12278,
       "allPassed": true
     },
     "environment": {
@@ -43,7 +43,7 @@
         "id": "settingsmanager_defaults_fallback_merging",
         "name": "SettingsManager defaults & fallback merging",
         "status": "passed",
-        "startTime": 1790175411902,
+        "startTime": 1790176907826,
         "durationMs": 1,
         "error": null
       },
@@ -51,7 +51,7 @@
         "id": "physicsengine_velocity_boundary_collision_calculations",
         "name": "PhysicsEngine velocity & boundary collision calculations",
         "status": "passed",
-        "startTime": 1790175411903,
+        "startTime": 1790176907827,
         "durationMs": 0,
         "error": null
       },
@@ -59,15 +59,15 @@
         "id": "12_locale_key_parity_default_mascot_translations",
         "name": "12-Locale Key Parity & default_mascot translations",
         "status": "passed",
-        "startTime": 1790175411903,
-        "durationMs": 3,
+        "startTime": 1790176907827,
+        "durationMs": 5,
         "error": null
       },
       {
         "id": "appstore_reactive_state_subscriber_notifications",
         "name": "AppStore reactive state & subscriber notifications",
         "status": "passed",
-        "startTime": 1790175411906,
+        "startTime": 1790176907832,
         "durationMs": 0,
         "error": null
       },
@@ -75,7 +75,7 @@
         "id": "eventbus_channels_wildcards_and_reactive_settings_proxy",
         "name": "EventBus channels, wildcards, and Reactive Settings Proxy",
         "status": "passed",
-        "startTime": 1790175411906,
+        "startTime": 1790176907832,
         "durationMs": 1,
         "error": null
       },
@@ -83,7 +83,7 @@
         "id": "gpuassetmanager_recursive_vram_texture_disposal",
         "name": "GPUAssetManager recursive VRAM & texture disposal",
         "status": "passed",
-        "startTime": 1790175411907,
+        "startTime": 1790176907833,
         "durationMs": 0,
         "error": null
       },
@@ -91,7 +91,7 @@
         "id": "preload_script_security_isolation_configuration",
         "name": "Preload Script & Security Isolation configuration",
         "status": "passed",
-        "startTime": 1790175411907,
+        "startTime": 1790176907833,
         "durationMs": 0,
         "error": null
       },
@@ -99,7 +99,7 @@
         "id": "soundmanager_volume_clamping_state_snapshot",
         "name": "SoundManager volume clamping & state snapshot",
         "status": "passed",
-        "startTime": 1790175411907,
+        "startTime": 1790176907833,
         "durationMs": 2,
         "error": null
       },
@@ -107,15 +107,15 @@
         "id": "scenestagemanager_model_fallback_resilience",
         "name": "SceneStageManager & model fallback resilience",
         "status": "passed",
-        "startTime": 1790175411909,
-        "durationMs": 0,
+        "startTime": 1790176907835,
+        "durationMs": 1,
         "error": null
       },
       {
         "id": "settingsmanager_texture_flag_key_defaults_and_serialization",
         "name": "SettingsManager texture & flag key defaults and serialization",
         "status": "passed",
-        "startTime": 1790175411909,
+        "startTime": 1790176907836,
         "durationMs": 0,
         "error": null
       },
@@ -123,15 +123,15 @@
         "id": "llmdirectorengine_companion_conversations_persona_customization_safety_guardrails",
         "name": "LLMDirectorEngine companion conversations, persona customization & safety guardrails",
         "status": "passed",
-        "startTime": 1790175411909,
-        "durationMs": 5696,
+        "startTime": 1790176907836,
+        "durationMs": 2051,
         "error": null
       },
       {
         "id": "assetregistrymanager_3d_ingestion_scenestagemanager_scanning",
         "name": "AssetRegistryManager 3D Ingestion & SceneStageManager Scanning",
         "status": "passed",
-        "startTime": 1790175417605,
+        "startTime": 1790176909887,
         "durationMs": 0,
         "error": null
       },
@@ -139,7 +139,7 @@
         "id": "humanoidmascotbuilder_procedural_3d_humanoid_skeletal_animations",
         "name": "HumanoidMascotBuilder procedural 3D humanoid & skeletal animations",
         "status": "passed",
-        "startTime": 1790175417605,
+        "startTime": 1790176909887,
         "durationMs": 2,
         "error": null
       },
@@ -147,23 +147,23 @@
         "id": "screenvisionservice_local_multimodal_vision_engine",
         "name": "ScreenVisionService local multimodal vision engine",
         "status": "passed",
-        "startTime": 1790175417608,
-        "durationMs": 0,
+        "startTime": 1790176909889,
+        "durationMs": 1,
         "error": null
       },
       {
         "id": "visioncaptionsynthesizerservice_native_multilingual_variables_11_personas_s2t_converter",
         "name": "VisionCaptionSynthesizerService native multilingual variables, 11 personas & S2T converter",
         "status": "passed",
-        "startTime": 1790175417609,
-        "durationMs": 1,
+        "startTime": 1790176909892,
+        "durationMs": 0,
         "error": null
       },
       {
         "id": "speechsynthesisservice_offline_tts_engine_voice_resolution",
         "name": "SpeechSynthesisService offline TTS engine & voice resolution",
         "status": "passed",
-        "startTime": 1790175417610,
+        "startTime": 1790176909893,
         "durationMs": 1,
         "error": null
       },
@@ -171,7 +171,7 @@
         "id": "clean_desktop_companion_integrity_safe_overlay_archival",
         "name": "Clean Desktop Companion Integrity & Safe Overlay Archival",
         "status": "passed",
-        "startTime": 1790175417611,
+        "startTime": 1790176909894,
         "durationMs": 1,
         "error": null
       },
@@ -179,89 +179,153 @@
         "id": "localimagegenservice_multi_style_synthesis_auto_inference",
         "name": "LocalImageGenService multi-style synthesis & auto-inference",
         "status": "passed",
-        "startTime": 1790175417612,
-        "durationMs": 6,
+        "startTime": 1790176909895,
+        "durationMs": 7,
         "error": null
       },
       {
         "id": "mascotmailservice_3d_mail_flight_directchatui_speech_bubble",
         "name": "MascotMailService 3D mail flight & DirectChatUI speech bubble",
         "status": "passed",
-        "startTime": 1790175417618,
-        "durationMs": 4,
+        "startTime": 1790176909902,
+        "durationMs": 3,
         "error": null
       },
       {
         "id": "codingagentengine_autonomous_react_loop_tool_execution",
         "name": "CodingAgentEngine autonomous ReAct loop & tool execution",
         "status": "passed",
-        "startTime": 1790175417623,
-        "durationMs": 2,
+        "startTime": 1790176909907,
+        "durationMs": 3,
         "error": null
       },
       {
         "id": "toolchainmanager_discovery_environment_injection_gcc_shim",
         "name": "ToolchainManager discovery, environment injection & GCC shim",
         "status": "passed",
-        "startTime": 1790175417631,
-        "durationMs": 2933,
+        "startTime": 1790176909916,
+        "durationMs": 3747,
         "error": null
       },
       {
         "id": "telemetryservice_ai_feedback_bundle_continuous_learning",
         "name": "TelemetryService AI feedback bundle & continuous learning",
         "status": "passed",
-        "startTime": 1790175420566,
-        "durationMs": 2094,
+        "startTime": 1790176913689,
+        "durationMs": 2580,
         "error": null
       },
       {
         "id": "hello_world_in_c_with_gcc_shim_and_powershell",
         "name": "Hello World in C with GCC shim and PowerShell",
         "status": "passed",
-        "startTime": 1790175422661,
-        "durationMs": 2679,
+        "startTime": 1790176916279,
+        "durationMs": 3824,
         "error": null
       }
     ]
   },
   "agentLearningMemory": {
-    "totalLearnedRecipes": 0,
-    "recentRecipes": []
+    "totalLearnedRecipes": 4,
+    "recentRecipes": [
+      {
+        "timestamp": "2026-09-23T15:12:06.881Z",
+        "goal": "make a program of hello world in C and run it",
+        "binaryPath": "./hello.exe",
+        "summary": "Hello World program compiled and run successfully",
+        "healedErrorsCount": 0
+      },
+      {
+        "timestamp": "2026-09-23T15:12:26.585Z",
+        "goal": "Write a new C program in cold_hello.c that prints Hello World, compile it to cold_hello.exe, and run it",
+        "summary": "Created a C program that prints Hello World, compiled it to cold_hello.exe, and ran it successfully.",
+        "healedErrorsCount": 0
+      },
+      {
+        "timestamp": "2026-09-23T15:20:11.530Z",
+        "goal": "Write a new C program in cold_hello.c that prints Hello World, compile it to cold_hello.exe, and run it",
+        "summary": "Created a C program that prints Hello World, compiled it to cold_hello.exe, and ran it successfully",
+        "healedErrorsCount": 1
+      },
+      {
+        "timestamp": "2026-09-23T15:20:47.865Z",
+        "goal": "Write a new C program in cold_hello.c that prints Hello World, compile it to cold_hello.exe, and run it",
+        "summary": "Created a C program that prints Hello World, compiled it to cold_hello.exe, and ran it successfully.",
+        "healedErrorsCount": 0
+      }
+    ]
   },
-  "lastTaskReport": null,
+  "lastTaskReport": {
+    "timestamp": "2026-09-23T15:20:47.863Z",
+    "goal": "Write a new C program in cold_hello.c that prints Hello World, compile it to cold_hello.exe, and run it",
+    "success": true,
+    "stepsExecuted": 1,
+    "summary": "Created a C program that prints Hello World, compiled it to cold_hello.exe, and ran it successfully.",
+    "healedErrors": [],
+    "stepHistory": []
+  },
   "workspaceInventory": {
-    "totalFiles": 9,
+    "totalFiles": 14,
     "files": [
+      {
+        "name": ".agent_memory.json",
+        "isDirectory": false,
+        "size": 1201,
+        "mtime": "2026-09-23T15:20:47.865Z"
+      },
       {
         "name": "ai_feedback_bundle.json",
         "isDirectory": false,
-        "size": 10302,
-        "mtime": "2026-09-23T14:57:02.659Z"
+        "size": 12989,
+        "mtime": "2026-09-23T15:21:56.261Z"
       },
       {
         "name": "AI_TELEMETRY.md",
         "isDirectory": false,
-        "size": 2553,
-        "mtime": "2026-09-23T14:57:02.659Z"
+        "size": 3501,
+        "mtime": "2026-09-23T15:21:56.263Z"
+      },
+      {
+        "name": "cold_hello.c",
+        "isDirectory": false,
+        "size": 76,
+        "mtime": "2026-09-23T15:20:46.914Z"
+      },
+      {
+        "name": "cold_hello.exe",
+        "isDirectory": false,
+        "size": 140288,
+        "mtime": "2026-09-23T15:20:47.301Z"
+      },
+      {
+        "name": "cold_hello.obj",
+        "isDirectory": false,
+        "size": 2507,
+        "mtime": "2026-09-23T15:20:47.253Z"
       },
       {
         "name": "hello.c",
         "isDirectory": false,
         "size": 79,
-        "mtime": "2026-09-23T14:57:04.579Z"
+        "mtime": "2026-09-23T15:21:59.000Z"
       },
       {
         "name": "hello.exe",
         "isDirectory": false,
         "size": 140288,
-        "mtime": "2026-09-23T14:57:05.009Z"
+        "mtime": "2026-09-23T15:21:59.675Z"
       },
       {
         "name": "hello.obj",
         "isDirectory": false,
         "size": 2511,
-        "mtime": "2026-09-23T14:57:04.962Z"
+        "mtime": "2026-09-23T15:21:59.601Z"
+      },
+      {
+        "name": "last_agent_task_report.json",
+        "isDirectory": false,
+        "size": 363,
+        "mtime": "2026-09-23T15:20:47.864Z"
       },
       {
         "name": "test_hello.c",
@@ -285,7 +349,7 @@
         "name": "test_report.json",
         "isDirectory": false,
         "size": 6436,
-        "mtime": "2026-09-23T14:57:05.341Z"
+        "mtime": "2026-09-23T15:22:00.113Z"
       }
     ]
   },

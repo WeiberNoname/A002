@@ -137,23 +137,23 @@ export const CODING_AGENT_SYSTEM_PROMPT = `You are an elite Autonomous Software 
 Your mission is to understand software requirements, write complete code, compile executables using the local toolchain (GCC, MSVC, Clang, Python, Node.js), test them, verify artifacts, and deliver production-ready programs.
 
 ANTIGRAVITY / CODEX WORKFLOW PROTOCOL:
-1. PLAN & REASON:
-   - Before calling tools, produce a concise chain of thought (Thought: ...) outlining the implementation steps.
-   - Always write complete, robust, compilable code without placeholders or 'TODO' shortcuts.
+1. CREATE SOURCE CODE FIRST (write_file):
+   - Always call \`write_file\` to write the complete source code file (e.g. "hello.c") BEFORE attempting to compile. Never compile before writing the file!
+   - Write complete, robust, compilable code without placeholders or 'TODO' shortcuts.
    - For C programs on Windows:
      * Add \`#define _CRT_SECURE_NO_WARNINGS\` before standard includes to silence MSVC fopen/sprintf warnings.
      * Include all necessary standard headers (<stdio.h>, <stdlib.h>, <string.h>, <math.h>, <stdint.h>).
      * For BMP or binary file headers, use \`#pragma pack(push, 1)\` and \`#pragma pack(pop)\` to prevent struct padding.
-2. COMPILE WITH LOCAL TOOLCHAIN:
-   - For C/C++: Call \`run_command\` with \`gcc -O2 <source>.c -o <output>.exe\` or \`cl /nologo /O2 <source>.c /Fe:<output>.exe\`. The local environment transparently supports standard GCC flags and translates them for MSVC.
-3. RUN & VALIDATE:
-   - After compiling, test-run the program: \`./<output>.exe\` or \`python <script>.py\`.
+2. COMPILE WITH LOCAL TOOLCHAIN (run_command):
+   - For C/C++: Call \`run_command\` with \`gcc -O2 <source>.c -o <output>.exe\` or \`cl /nologo /O2 <source>.c /Fe:<output>.exe\`. The local environment transparently supports standard GCC flags and compiles with the local toolchain.
+3. RUN & VALIDATE (run_command):
+   - After compiling, test-run the program: call \`run_command\` with \`.\\<output>.exe\` or \`<output>.exe\` or \`python <script>.py\`.
    - If writing an image processing tool (e.g. BMP reader, negative image filter, edge detector): create or synthesize a sample test image (e.g. a small valid 24-bit uncompressed BMP), run your executable on it, and confirm the output image is created.
-4. SURGICAL EDITING & SELF-HEALING:
+4. SURGICAL EDITING & SELF-HEALING (patch_file / write_file):
    - When fixing a compiler error or small bug, use \`patch_file\` to surgically replace the faulty snippet instead of rewriting the entire file. Use \`write_file\` when creating a new file or performing large rewrites.
    - If a compile or test command produces errors, inspect the diagnostic hint, locate the error line, apply the patch, and re-compile.
-5. FINISH & DELIVER:
-   - Once the binary has been compiled and validated, call \`finish_task\` with a concise summary and binary path.
+5. FINISH & DELIVER (finish_task):
+   - Once the binary has been compiled and validated by running it, call \`finish_task\` with a concise summary and binary path.
 
 If tool calling format is not automatically applied, you can output tool calls in JSON blocks:
 \`\`\`json
@@ -312,7 +312,9 @@ export class CodingAgentEngine {
           const content = message.content || '';
           this.emit('log', { type: 'chat', text: content });
 
-          if (/task complete|finished|successfully compiled/i.test(content)) {
+          const isExplicitCompletion = /(?:task\s+(?:is\s+)?complete|fully\s+accomplished|all\s+steps\s+finished|program\s+(?:is\s+)?ready)/i.test(content) &&
+                                       !(/cannot|failed|error|not\s+found|to\s+fix|need\s+to|try\s+again/i.test(content));
+          if (isExplicitCompletion) {
             taskCompleted = true;
             finalSummary = { summary: content, binary_path: '' };
             break;
@@ -321,7 +323,7 @@ export class CodingAgentEngine {
           // Otherwise prompt model to take action
           messages.push({
             role: 'user',
-            content: 'Please proceed with the implementation using tool calls (write_file, patch_file, run_command, or finish_task).'
+            content: 'Please proceed with the implementation using tool calls: call `write_file` to create or update the code, `run_command` to compile and execute, and `finish_task` to finalize.'
           });
           continue;
         }
@@ -452,7 +454,16 @@ export class CodingAgentEngine {
     if (!this.agentBridge || typeof this.agentBridge.writeFile !== 'function') {
       return { success: false, message: 'agentBridge.writeFile not available in runtime' };
     }
-    const cleanPath = (filePath || '').replace(/^[/\\]+/, '');
+    let cleanPath = (filePath || '').replace(/^[A-Za-z]:[/\\]+/, '').replace(/^[/\\]+/, '');
+    
+    // Guard against trying to write binary executables directly
+    if (/\.(exe|dll|so|obj)$/i.test(cleanPath)) {
+      return {
+        success: false,
+        message: `Cannot write binary executable "${cleanPath}" directly with write_file. Write the .c source file instead, and compile it using run_command.`
+      };
+    }
+
     this.emit('log', { type: 'info', text: `📝 Writing file: ${cleanPath} (${content.length} chars)...` });
 
     const res = await this.agentBridge.writeFile(cleanPath, content);
@@ -530,7 +541,19 @@ export class CodingAgentEngine {
     if (/sizeof\(.*bitmapfileheader.*\)|struct\s+.*bitmap/i.test(errText) || (lower.includes('bmp') && (lower.includes('header size') || lower.includes('corrupted') || lower.includes('magic')))) {
       hints.push('BMP struct alignment: Use `#pragma pack(push, 1)` and `#pragma pack(pop)` around BMP header structs to prevent struct padding.');
     }
-    // 6. Python missing module
+    // 6. Source file not found / missing file before compilation
+    if (/cannot open source file|no such file or directory/i.test(errText)) {
+      hints.push('Source file not found: Call `write_file` to write the source code file BEFORE attempting to compile.');
+    }
+    // 7. Duplicate function definition / multiple main
+    if (/already has a body|redefinition.*main/i.test(errText)) {
+      hints.push('Duplicate main() function: Use `write_file` to rewrite a single, clean main() function without duplicates.');
+    }
+    // 8. Command not recognized / executable invocation
+    if (/not recognized as the name of a cmdlet|command not found/i.test(errText)) {
+      hints.push('Executable not found: Make sure compilation succeeded, and execute using `.\\<program>.exe` or `<program>.exe`.');
+    }
+    // 9. Python missing module
     if (/modulenotfounderror|no module named/i.test(errText)) {
       hints.push('Python dependency: Standard libraries are recommended, or run pip install via run_command.');
     }
@@ -688,7 +711,74 @@ export class CodingAgentEngine {
       }
     }
 
-    return parsedCalls;
+    if (parsedCalls.length > 0) {
+      return parsedCalls;
+    }
+
+    // 3. Fallback: Parse raw inline JSON objects (e.g. {"name": "...", "parameters": {...}};)
+    return this._extractInlineJsonToolCalls(content);
+  }
+
+  _extractInlineJsonToolCalls(text) {
+    if (!text || typeof text !== 'string') return [];
+    const calls = [];
+    const validTools = new Set(['write_file', 'patch_file', 'run_command', 'read_file', 'list_files', 'finish_task']);
+    
+    let i = 0;
+    while (i < text.length) {
+      if (text[i] === '{') {
+        let depth = 0;
+        let inString = false;
+        let escape = false;
+        const start = i;
+        let matched = false;
+
+        for (let j = i; j < text.length; j++) {
+          const ch = text[j];
+          if (escape) {
+            escape = false;
+            continue;
+          }
+          if (ch === '\\' && inString) {
+            escape = true;
+            continue;
+          }
+          if (ch === '"') {
+            inString = !inString;
+            continue;
+          }
+          if (!inString) {
+            if (ch === '{') depth++;
+            else if (ch === '}') {
+              depth--;
+              if (depth === 0) {
+                const candidate = text.slice(start, j + 1);
+                try {
+                  const parsed = JSON.parse(candidate);
+                  const name = parsed.name || parsed.tool;
+                  if (name && validTools.has(name)) {
+                    calls.push({
+                      id: null,
+                      name,
+                      args: parsed.parameters || parsed.args || parsed
+                    });
+                    i = j;
+                    matched = true;
+                    break;
+                  }
+                } catch {}
+              }
+            }
+          }
+        }
+        if (matched) {
+          i++;
+          continue;
+        }
+      }
+      i++;
+    }
+    return calls;
   }
 
   async _saveLearningReport(result, userGoal, healedErrors = []) {

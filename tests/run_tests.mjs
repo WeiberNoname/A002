@@ -1250,6 +1250,7 @@ import('../src/core/SoundManager.js').then(({ SoundManager }) => {
                         await import('./test_toolchain.mjs');
                         await import('./test_telemetry.mjs');
                         await import('./test_hello_c.mjs');
+                        await import('./test_tool_call_parser.mjs');
                         const finalReport = globalTestReporter.saveReport();
                         console.log(`\n🎉 ALL UNIT TEST SUITES PASSED CLEANLY (${finalReport.summary.passed}/${finalReport.summary.total} - ${finalReport.summary.passRate})`);
                         console.log(`📊 AI Test Report saved: tests/test_results.json & workspace/test_report.json`);

@@ -11,8 +11,15 @@ const cp = require('child_process');
 
 class ToolchainManager {
   constructor(options = {}) {
-    this.rootDir = options.rootDir || process.cwd();
-    this.toolchainDir = options.toolchainDir || path.join(this.rootDir, 'workspace', '.toolchain');
+    if (typeof options === 'string') {
+      this.rootDir = path.resolve(options, '..');
+      this.workspaceDir = options;
+      this.toolchainDir = path.join(this.workspaceDir, '.toolchain');
+    } else {
+      this.rootDir = options.rootDir || process.cwd();
+      this.workspaceDir = options.workspaceDir || path.join(this.rootDir, 'workspace');
+      this.toolchainDir = options.toolchainDir || path.join(this.workspaceDir, '.toolchain');
+    }
     this.msvcEnv = null;
     this.cachedDiagnostics = null;
     this.isInitialized = false;
@@ -182,7 +189,7 @@ try {
 
       // Write gcc.cmd
       const gccCmdPath = path.join(this.toolchainDir, 'gcc.cmd');
-      const gccCmdContent = `@echo off\r\n${nodeInvocationCmd} "%~dp0gcc_shim.js" %*\r\n`;
+      const gccCmdContent = `@echo off\r\n${nodeInvocationCmd} "%~dp0gcc_shim.js" %*\r\nexit /b %ERRORLEVEL%\r\n`;
       fs.writeFileSync(gccCmdPath, gccCmdContent, 'utf8');
 
       // Write clang.cmd alias
@@ -191,7 +198,7 @@ try {
 
       // Write gcc.ps1 for PowerShell
       const gccPs1Path = path.join(this.toolchainDir, 'gcc.ps1');
-      const gccPs1Content = `& ${nodeInvocationCmd} "$PSScriptRoot\\gcc_shim.js" @args\r\n`;
+      const gccPs1Content = `& ${nodeInvocationCmd} "$PSScriptRoot\\gcc_shim.js" @args\r\nif ($LASTEXITCODE -ne 0 -and $LASTEXITCODE -ne $null) { exit $LASTEXITCODE }\r\n`;
       fs.writeFileSync(gccPs1Path, gccPs1Content, 'utf8');
 
       // Write clang.ps1 alias
@@ -236,6 +243,10 @@ try {
     // 1. Toolchain dir first so shims have priority
     if (this.toolchainDir) {
       pathSet.add(this.toolchainDir);
+    }
+    // 1b. Workspace dir so compiled binaries (e.g. hello.exe) can be executed directly as `hello.exe`
+    if (this.workspaceDir) {
+      pathSet.add(this.workspaceDir);
     }
 
     // 2. Existing path directories from process.env and msvcEnv
