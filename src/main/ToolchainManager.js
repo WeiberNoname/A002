@@ -131,11 +131,16 @@ if (nativeGcc) {
 // Otherwise translate to cl.exe
 let outputFile = '';
 const otherTokens = ['/nologo'];
+let isCpp = false;
 
 for (let i = 0; i < args.length; i++) {
   let a = (args[i] || '').trim();
   if ((a.startsWith('"') && a.endsWith('"')) || (a.startsWith("'") && a.endsWith("'"))) {
     a = a.slice(1, -1);
+  }
+
+  if (/\.(cpp|cxx|cc)$/i.test(a) || a.startsWith('-std=c++')) {
+    isCpp = true;
   }
 
   if (a === '-o' && i + 1 < args.length) {
@@ -163,6 +168,10 @@ for (let i = 0; i < args.length; i++) {
   }
 }
 
+if (isCpp && !otherTokens.includes('/EHsc')) {
+  otherTokens.push('/EHsc');
+}
+
 let feToken = '';
 if (outputFile) {
   feToken = '/Fe:"' + outputFile + '"';
@@ -187,23 +196,27 @@ try {
       const nodeBin = this._findNodeBinary();
       const nodeInvocationCmd = nodeBin.includes(' ') ? `"${nodeBin}"` : nodeBin;
 
-      // Write gcc.cmd
+      // Write gcc.cmd and g++.cmd
       const gccCmdPath = path.join(this.toolchainDir, 'gcc.cmd');
       const gccCmdContent = `@echo off\r\n${nodeInvocationCmd} "%~dp0gcc_shim.js" %*\r\nexit /b %ERRORLEVEL%\r\n`;
       fs.writeFileSync(gccCmdPath, gccCmdContent, 'utf8');
+      fs.writeFileSync(path.join(this.toolchainDir, 'g++.cmd'), gccCmdContent, 'utf8');
 
-      // Write clang.cmd alias
+      // Write clang.cmd and clang++.cmd aliases
       const clangCmdPath = path.join(this.toolchainDir, 'clang.cmd');
       fs.writeFileSync(clangCmdPath, gccCmdContent, 'utf8');
+      fs.writeFileSync(path.join(this.toolchainDir, 'clang++.cmd'), gccCmdContent, 'utf8');
 
-      // Write gcc.ps1 for PowerShell
+      // Write gcc.ps1 and g++.ps1 for PowerShell
       const gccPs1Path = path.join(this.toolchainDir, 'gcc.ps1');
       const gccPs1Content = `& ${nodeInvocationCmd} "$PSScriptRoot\\gcc_shim.js" @args\r\nif ($LASTEXITCODE -ne 0 -and $LASTEXITCODE -ne $null) { exit $LASTEXITCODE }\r\n`;
       fs.writeFileSync(gccPs1Path, gccPs1Content, 'utf8');
+      fs.writeFileSync(path.join(this.toolchainDir, 'g++.ps1'), gccPs1Content, 'utf8');
 
-      // Write clang.ps1 alias
+      // Write clang.ps1 and clang++.ps1 aliases
       const clangPs1Path = path.join(this.toolchainDir, 'clang.ps1');
       fs.writeFileSync(clangPs1Path, gccPs1Content, 'utf8');
+      fs.writeFileSync(path.join(this.toolchainDir, 'clang++.ps1'), gccPs1Content, 'utf8');
     } catch (err) {
       console.warn('[ToolchainManager] Failed to write gcc shim:', err.message);
     }
