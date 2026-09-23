@@ -22,7 +22,14 @@ graph TD
     end
 ```
 
-### 1. 📦 Universal Asset Hub & Companion Customizer (Tab 1: Asset Hub)
+### 1. ⚡ DevLab: Codex-Clean Autonomous Coding Agent & Native Toolchain
+* **Dual-Pane Codex Canvas**: Distraction-free paired programming interface with live code viewer, integrated terminal, syntax highlighting, and 1-click run/save actions.
+* **Autonomous Local ReAct Engine**: Multi-turn reasoning loop supporting local models (e.g. `llama3.2`, `qwen2.5-coder`).
+* **Universal Compiler & Toolchain Shim**: Auto-detects MSVC (`cl.exe`), provides a transparent GCC/Clang translation shim, and guarantees Node.js and Python availability.
+* **Self-Healing Diagnostics**: Automatically analyzes compiler diagnostics and repairs missing headers (`<stdint.h>`, `<math.h>`), struct alignment (`#pragma pack(1)`), CRT safety flags (`_CRT_SECURE_NO_WARNINGS`), and missing dependencies.
+* **Continuous AI Learning**: Telemetry and successful code recipes are persisted into `.agent_memory.json` to accelerate future runs.
+
+### 2. 📦 Universal Asset Hub & Companion Customizer (Tab 1: Asset Hub)
 * **Central Drag-and-Drop Ingestion**: Universal dropzone supporting 3D Models (`.glb`, `.gltf`, `.fbx`, `.obj`) and Textures (`.png`, `.jpg`, `.webp`, `.svg`).
 * **Standardized File Holder Grid**: Instant 1-click selection across procedural 3D models and custom imported GLTF/GLB models:
   * 🤖 **Cyber Android** (`.HUMANOID` • 100% Original IP procedural humanoid with 4 skeletal animation cycles: `Idle Breathing`, `Cheering Wave`, `Victory Dance`, and `Look Around`).
