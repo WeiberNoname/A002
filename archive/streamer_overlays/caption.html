@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: blob: file:; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: file: *; font-src 'self' data:; connect-src 'self' data: blob: file: *;">
+  <title>Live Caption Subtitles</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    :root {
+      --caption-font-size: 16px;
+      --caption-bg-color: #0b0f19;
+      --caption-bg-rgb: 11, 15, 25;
+      --caption-bg-opacity: 0.90;
+      --caption-font-color: #ffffff;
+      --caption-accent-color: #38bdf8;
+      --caption-accent-glow: rgba(56, 189, 248, 0.4);
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: transparent !important;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans", sans-serif;
+      color: #ffffff;
+    }
+
+    .caption-container {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      height: 100%;
+      background: rgba(var(--caption-bg-rgb), var(--caption-bg-opacity));
+      backdrop-filter: blur(calc(20px * var(--caption-bg-opacity))) saturate(180%);
+      -webkit-backdrop-filter: blur(calc(20px * var(--caption-bg-opacity))) saturate(180%);
+      border: 1px solid rgba(56, 189, 248, calc(0.35 * var(--caption-bg-opacity) + 0.08));
+      border-radius: 10px;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, calc(0.85 * var(--caption-bg-opacity))), 0 0 20px var(--caption-accent-glow);
+      overflow: hidden;
+      transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    /* Minimal Draggable Header */
+    .caption-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 5px 8px 3px 8px;
+      -webkit-app-region: drag;
+      cursor: grab;
+      min-height: 20px;
+    }
+
+    .caption-header:active {
+      cursor: grabbing;
+    }
+
+    .caption-header-left {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Streaming Green Flash Indicator */
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 8px #10b981;
+      animation: pulseLive 1.4s infinite ease-in-out;
+      flex-shrink: 0;
+    }
+
+    @keyframes pulseLive {
+      0%, 100% {
+        transform: scale(0.85);
+        opacity: 0.6;
+        box-shadow: 0 0 5px #10b981;
+      }
+      50% {
+        transform: scale(1.35);
+        opacity: 1;
+        box-shadow: 0 0 14px #10b981, 0 0 20px rgba(16, 185, 129, 0.6);
+      }
+    }
+
+    .caption-counter {
+      font-size: 9px;
+      font-weight: 700;
+      color: rgba(56, 189, 248, 0.85);
+      font-family: monospace;
+      letter-spacing: 0.5px;
+    }
+
+    .caption-header-actions {
+      -webkit-app-region: no-drag;
+      display: flex;
+      align-items: center;
+    }
+
+    .hdr-btn-close {
+      background: transparent;
+      border: none;
+      color: rgba(255, 255, 255, 0.35);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 1px 5px;
+      border-radius: 4px;
+      cursor: pointer;
+      line-height: 1;
+      transition: all 0.15s ease;
+    }
+
+    .hdr-btn-close:hover {
+      background: rgba(239, 68, 68, 0.8);
+      color: #ffffff;
+    }
+
+    /* Subtitle Display Body */
+    .caption-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 6px 16px 10px 16px;
+      overflow-y: auto;
+      gap: 6px;
+    }
+
+    .caption-empty-placeholder {
+      font-size: 13px;
+      color: var(--caption-font-color);
+      opacity: 0.40;
+      font-style: italic;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+    }
+
+    .caption-text-content {
+      font-size: var(--caption-font-size);
+      font-weight: 700;
+      line-height: 1.45;
+      color: var(--caption-font-color);
+      text-shadow: 0 2px 6px rgba(0, 0, 0, 0.95), 0 0 10px var(--caption-accent-glow);
+      word-break: break-word;
+      transition: color 0.15s ease, font-size 0.15s ease;
+    }
+
+    .caption-pop-anim {
+      animation: captionPopIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes captionPopIn {
+      0% { opacity: 0; transform: translateY(4px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div id="caption-window-container" class="caption-container">
+    <!-- Minimal Header with Streaming Green Flash -->
+    <div class="caption-header">
+      <div class="caption-header-left">
+        <div class="live-dot" title="Live Streaming Active"></div>
+        <span id="caption-seq-counter" class="caption-counter"></span>
+      </div>
+      <div class="caption-header-actions">
+        <button id="btn-caption-close" class="hdr-btn-close" title="Close Window">✕</button>
+      </div>
+    </div>
+
+    <!-- Subtitle Body -->
+    <div class="caption-body">
+      <div id="caption-empty-hint" class="caption-empty-placeholder">
+        Awaiting live caption broadcast...
+      </div>
+      <div id="caption-text" class="caption-text-content caption-pop-anim" style="display: none;"></div>
+    </div>
+  </div>
+
+  <script src="caption.js"></script>
+</body>
+</html>

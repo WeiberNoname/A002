@@ -1,0 +1,23 @@
+{
+  "name": "desktop-pet",
+  "version": "1.0.0",
+  "description": "Desktop 3D Display - Interactive 3D WebGL, Physics, Grand Piano, and AI Director",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "node tests/run_tests.mjs",
+    "test:unit": "node tests/run_tests.mjs",
+    "test:e2e": "node tests/e2e_visual_regression.js",
+    "build": "electron-packager . DesktopPet --platform=win32 --arch=x64 --ignore=\"DesktopPet-win32-x64|build_tmp|tests|\\.git\" --overwrite && copy steam_appid.txt DesktopPet-win32-x64\\",
+    "rebuild": "python rebuild.py"
+  },
+  "dependencies": {
+    "@skyatnpm/steamworks-js": "^0.1.0",
+    "i18next": "^26.3.6",
+    "three": "^0.166.0"
+  },
+  "devDependencies": {
+    "electron": "^31.0.0",
+    "electron-packager": "^17.1.2"
+  }
+}

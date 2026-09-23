@@ -1,0 +1,293 @@
+{
+  "version": "1.0.0",
+  "timestamp": "2026-09-23T14:57:45.345Z",
+  "environment": {
+    "platform": "win32",
+    "arch": "x64",
+    "node": "v24.13.0",
+    "toolchain": {
+      "node": {
+        "available": true,
+        "version": "v24.13.0"
+      },
+      "python": {
+        "available": true,
+        "version": "Python 3.13.14"
+      },
+      "cCompiler": {
+        "available": true,
+        "type": "msvc",
+        "name": "MSVC 2022 (cl.exe) + GCC Shim",
+        "details": "Visual Studio 2022 C/C++ x64 + Windows SDK"
+      }
+    }
+  },
+  "testSuiteResults": {
+    "timestamp": "2026-09-23T14:57:05.340Z",
+    "summary": {
+      "total": 23,
+      "passed": 23,
+      "failed": 0,
+      "passRate": "100%",
+      "durationMs": 13438,
+      "allPassed": true
+    },
+    "environment": {
+      "platform": "win32",
+      "arch": "x64",
+      "node": "v24.13.0",
+      "cwd": "C:\\Users\\space\\.gemini\\antigravity-ide\\scratch\\Daysome-Project-T1000-V1 Ready"
+    },
+    "suites": [
+      {
+        "id": "settingsmanager_defaults_fallback_merging",
+        "name": "SettingsManager defaults & fallback merging",
+        "status": "passed",
+        "startTime": 1790175411902,
+        "durationMs": 1,
+        "error": null
+      },
+      {
+        "id": "physicsengine_velocity_boundary_collision_calculations",
+        "name": "PhysicsEngine velocity & boundary collision calculations",
+        "status": "passed",
+        "startTime": 1790175411903,
+        "durationMs": 0,
+        "error": null
+      },
+      {
+        "id": "12_locale_key_parity_default_mascot_translations",
+        "name": "12-Locale Key Parity & default_mascot translations",
+        "status": "passed",
+        "startTime": 1790175411903,
+        "durationMs": 3,
+        "error": null
+      },
+      {
+        "id": "appstore_reactive_state_subscriber_notifications",
+        "name": "AppStore reactive state & subscriber notifications",
+        "status": "passed",
+        "startTime": 1790175411906,
+        "durationMs": 0,
+        "error": null
+      },
+      {
+        "id": "eventbus_channels_wildcards_and_reactive_settings_proxy",
+        "name": "EventBus channels, wildcards, and Reactive Settings Proxy",
+        "status": "passed",
+        "startTime": 1790175411906,
+        "durationMs": 1,
+        "error": null
+      },
+      {
+        "id": "gpuassetmanager_recursive_vram_texture_disposal",
+        "name": "GPUAssetManager recursive VRAM & texture disposal",
+        "status": "passed",
+        "startTime": 1790175411907,
+        "durationMs": 0,
+        "error": null
+      },
+      {
+        "id": "preload_script_security_isolation_configuration",
+        "name": "Preload Script & Security Isolation configuration",
+        "status": "passed",
+        "startTime": 1790175411907,
+        "durationMs": 0,
+        "error": null
+      },
+      {
+        "id": "soundmanager_volume_clamping_state_snapshot",
+        "name": "SoundManager volume clamping & state snapshot",
+        "status": "passed",
+        "startTime": 1790175411907,
+        "durationMs": 2,
+        "error": null
+      },
+      {
+        "id": "scenestagemanager_model_fallback_resilience",
+        "name": "SceneStageManager & model fallback resilience",
+        "status": "passed",
+        "startTime": 1790175411909,
+        "durationMs": 0,
+        "error": null
+      },
+      {
+        "id": "settingsmanager_texture_flag_key_defaults_and_serialization",
+        "name": "SettingsManager texture & flag key defaults and serialization",
+        "status": "passed",
+        "startTime": 1790175411909,
+        "durationMs": 0,
+        "error": null
+      },
+      {
+        "id": "llmdirectorengine_companion_conversations_persona_customization_safety_guardrails",
+        "name": "LLMDirectorEngine companion conversations, persona customization & safety guardrails",
+        "status": "passed",
+        "startTime": 1790175411909,
+        "durationMs": 5696,
+        "error": null
+      },
+      {
+        "id": "assetregistrymanager_3d_ingestion_scenestagemanager_scanning",
+        "name": "AssetRegistryManager 3D Ingestion & SceneStageManager Scanning",
+        "status": "passed",
+        "startTime": 1790175417605,
+        "durationMs": 0,
+        "error": null
+      },
+      {
+        "id": "humanoidmascotbuilder_procedural_3d_humanoid_skeletal_animations",
+        "name": "HumanoidMascotBuilder procedural 3D humanoid & skeletal animations",
+        "status": "passed",
+        "startTime": 1790175417605,
+        "durationMs": 2,
+        "error": null
+      },
+      {
+        "id": "screenvisionservice_local_multimodal_vision_engine",
+        "name": "ScreenVisionService local multimodal vision engine",
+        "status": "passed",
+        "startTime": 1790175417608,
+        "durationMs": 0,
+        "error": null
+      },
+      {
+        "id": "visioncaptionsynthesizerservice_native_multilingual_variables_11_personas_s2t_converter",
+        "name": "VisionCaptionSynthesizerService native multilingual variables, 11 personas & S2T converter",
+        "status": "passed",
+        "startTime": 1790175417609,
+        "durationMs": 1,
+        "error": null
+      },
+      {
+        "id": "speechsynthesisservice_offline_tts_engine_voice_resolution",
+        "name": "SpeechSynthesisService offline TTS engine & voice resolution",
+        "status": "passed",
+        "startTime": 1790175417610,
+        "durationMs": 1,
+        "error": null
+      },
+      {
+        "id": "clean_desktop_companion_integrity_safe_overlay_archival",
+        "name": "Clean Desktop Companion Integrity & Safe Overlay Archival",
+        "status": "passed",
+        "startTime": 1790175417611,
+        "durationMs": 1,
+        "error": null
+      },
+      {
+        "id": "localimagegenservice_multi_style_synthesis_auto_inference",
+        "name": "LocalImageGenService multi-style synthesis & auto-inference",
+        "status": "passed",
+        "startTime": 1790175417612,
+        "durationMs": 6,
+        "error": null
+      },
+      {
+        "id": "mascotmailservice_3d_mail_flight_directchatui_speech_bubble",
+        "name": "MascotMailService 3D mail flight & DirectChatUI speech bubble",
+        "status": "passed",
+        "startTime": 1790175417618,
+        "durationMs": 4,
+        "error": null
+      },
+      {
+        "id": "codingagentengine_autonomous_react_loop_tool_execution",
+        "name": "CodingAgentEngine autonomous ReAct loop & tool execution",
+        "status": "passed",
+        "startTime": 1790175417623,
+        "durationMs": 2,
+        "error": null
+      },
+      {
+        "id": "toolchainmanager_discovery_environment_injection_gcc_shim",
+        "name": "ToolchainManager discovery, environment injection & GCC shim",
+        "status": "passed",
+        "startTime": 1790175417631,
+        "durationMs": 2933,
+        "error": null
+      },
+      {
+        "id": "telemetryservice_ai_feedback_bundle_continuous_learning",
+        "name": "TelemetryService AI feedback bundle & continuous learning",
+        "status": "passed",
+        "startTime": 1790175420566,
+        "durationMs": 2094,
+        "error": null
+      },
+      {
+        "id": "hello_world_in_c_with_gcc_shim_and_powershell",
+        "name": "Hello World in C with GCC shim and PowerShell",
+        "status": "passed",
+        "startTime": 1790175422661,
+        "durationMs": 2679,
+        "error": null
+      }
+    ]
+  },
+  "agentLearningMemory": {
+    "totalLearnedRecipes": 0,
+    "recentRecipes": []
+  },
+  "lastTaskReport": null,
+  "workspaceInventory": {
+    "totalFiles": 9,
+    "files": [
+      {
+        "name": "ai_feedback_bundle.json",
+        "isDirectory": false,
+        "size": 10302,
+        "mtime": "2026-09-23T14:57:02.659Z"
+      },
+      {
+        "name": "AI_TELEMETRY.md",
+        "isDirectory": false,
+        "size": 2553,
+        "mtime": "2026-09-23T14:57:02.659Z"
+      },
+      {
+        "name": "hello.c",
+        "isDirectory": false,
+        "size": 79,
+        "mtime": "2026-09-23T14:57:04.579Z"
+      },
+      {
+        "name": "hello.exe",
+        "isDirectory": false,
+        "size": 140288,
+        "mtime": "2026-09-23T14:57:05.009Z"
+      },
+      {
+        "name": "hello.obj",
+        "isDirectory": false,
+        "size": 2511,
+        "mtime": "2026-09-23T14:57:04.962Z"
+      },
+      {
+        "name": "test_hello.c",
+        "isDirectory": false,
+        "size": 100,
+        "mtime": "2026-09-23T13:45:35.142Z"
+      },
+      {
+        "name": "test_hello.exe",
+        "isDirectory": false,
+        "size": 140800,
+        "mtime": "2026-09-23T13:46:19.989Z"
+      },
+      {
+        "name": "test_hello.obj",
+        "isDirectory": false,
+        "size": 2551,
+        "mtime": "2026-09-23T13:46:19.587Z"
+      },
+      {
+        "name": "test_report.json",
+        "isDirectory": false,
+        "size": 6436,
+        "mtime": "2026-09-23T14:57:05.341Z"
+      }
+    ]
+  },
+  "systemDiagnosticLogSnippet": "[2026-09-07T03:26:14.633Z] === Application Session Started ===\n[2026-09-07T03:26:14.636Z] Developer Mode active: true\n[2026-09-07T03:26:14.637Z] Loading Steamworks module @skyatnpm/steamworks-js...\n[2026-09-07T03:26:14.765Z] Steamworks module loaded successfully. Initializing against App ID 480...\n[2026-09-07T03:26:14.904Z] Steamworks API initialized successfully. Active user: spaceweiber\n[2026-09-07T03:26:14.906Z] [Steam Startup] Force-wiped AppID 480 testing stats on Steam Cloud.\n[2026-09-07T03:26:15.271Z] Developer mode: Detached DevTools window opened.\n[2026-09-07T03:26:15.504Z] [Renderer Console] Created default settings file at: C:\\Users\\space\\.gemini\\antigravity-ide\\scratch\\Daysome-Project-T1000-V1 Ready\\assets\\settings\n[2026-09-07T03:26:15.518Z] [Renderer Console] %cElectron Security Warning (Insecure Content-Security-Policy) font-weight: bold; This renderer process has either no Content Security\n  Policy set or a policy with \"unsafe-eval\" enabled. This exposes users of\n  this app to unnecessary security risks.\nFor more information and help, consult\nhttps://electronjs.org/docs/tutorial/security.\nThis warning will not show up\nonce the app is packaged.\n[2026-09-07T03:26:15.694Z] [Renderer Console] [i18n] i18next initialized successfully with active language: en\n[2026-09-07T03:26:15.739Z] [Renderer Console] Starting background preview generator for 2 models: procedural,humanoid\n[2026-09-07T03:26:15.952Z] [Renderer Console] Generated canonical preview for: procedural\n[2026-09-07T03:26:15.967Z] [Renderer Console] Generated canonical preview for: humanoid"
+}

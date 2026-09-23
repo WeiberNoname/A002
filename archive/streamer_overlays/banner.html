@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: blob: file:; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: file: *; font-src 'self' data:; connect-src 'self' data: blob: file: *;">
+  <title>Sponsor & Ad Banner</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    :root {
+      --banner-bg-color: #0b0f19;
+      --banner-bg-rgb: 11, 15, 25;
+      --banner-bg-opacity: 0.85;
+      --banner-accent-color: #38bdf8;
+      --banner-accent-glow: rgba(56, 189, 248, 0.4);
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: transparent !important;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans", sans-serif;
+      color: #ffffff;
+    }
+
+    .banner-container {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      height: 100%;
+      background: rgba(var(--banner-bg-rgb), var(--banner-bg-opacity));
+      backdrop-filter: blur(calc(20px * var(--banner-bg-opacity))) saturate(180%);
+      -webkit-backdrop-filter: blur(calc(20px * var(--banner-bg-opacity))) saturate(180%);
+      border: 1px solid rgba(56, 189, 248, calc(0.35 * var(--banner-bg-opacity) + 0.08));
+      border-radius: 10px;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, calc(0.85 * var(--banner-bg-opacity))), 0 0 20px rgba(56, 189, 248, calc(0.25 * var(--banner-bg-opacity)));
+      overflow: hidden;
+      transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    /* Minimal Draggable Header */
+    .banner-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 5px 8px 3px 8px;
+      -webkit-app-region: drag;
+      cursor: grab;
+      min-height: 20px;
+    }
+
+    .banner-header:active {
+      cursor: grabbing;
+    }
+
+    .banner-header-left {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .banner-badge {
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      color: var(--banner-accent-color);
+      text-transform: uppercase;
+      opacity: calc(0.4 * var(--banner-bg-opacity) + 0.6);
+    }
+
+    .banner-page-indicator {
+      font-size: 9px;
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.7);
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 1px 6px;
+      border-radius: 4px;
+      letter-spacing: 0.5px;
+      transition: all 0.2s ease;
+    }
+
+    .banner-header-actions {
+      -webkit-app-region: no-drag;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .hdr-nav-btn {
+      background: transparent;
+      border: none;
+      color: rgba(255, 255, 255, 0.45);
+      font-size: 10px;
+      font-weight: 700;
+      padding: 1px 4px;
+      border-radius: 3px;
+      cursor: pointer;
+      line-height: 1;
+      transition: all 0.15s ease;
+    }
+
+    .hdr-nav-btn:hover {
+      background: rgba(56, 189, 248, 0.25);
+      color: #38bdf8;
+    }
+
+    .hdr-btn-close {
+      background: transparent;
+      border: none;
+      color: rgba(255, 255, 255, 0.35);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 1px 5px;
+      border-radius: 4px;
+      cursor: pointer;
+      line-height: 1;
+      transition: all 0.15s ease;
+    }
+
+    .hdr-btn-close:hover {
+      background: rgba(239, 68, 68, 0.8);
+      color: #ffffff;
+    }
+
+    /* Banner Content Body */
+    .banner-body {
+      flex: 1;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px;
+      overflow: hidden;
+      cursor: default;
+    }
+
+    .banner-body.clickable {
+      cursor: pointer;
+    }
+
+    .banner-placeholder {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.45);
+      font-style: italic;
+      text-align: center;
+      padding: 10px;
+      border: 1px dashed rgba(255, 255, 255, 0.2);
+      border-radius: 6px;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      z-index: 1;
+    }
+
+    /* Dual-Layer Transition Stage */
+    .banner-stage {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      perspective: 1000px;
+      overflow: hidden;
+    }
+
+    .banner-slide {
+      position: absolute;
+      max-width: 100%;
+      max-height: 100%;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      border-radius: 6px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+      backface-visibility: hidden;
+      will-change: transform, opacity;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .banner-slide.active {
+      opacity: 1;
+      transform: none;
+      pointer-events: auto;
+      z-index: 2;
+    }
+
+    /* Animations: Fade */
+    .anim-fade-out { opacity: 0 !important; }
+    .anim-fade-in { opacity: 1 !important; }
+
+    /* Animations: Slide Left */
+    .anim-slide-left-out { transform: translateX(-105%) !important; opacity: 0 !important; }
+    .anim-slide-left-in { transform: translateX(0) !important; opacity: 1 !important; }
+    .anim-slide-left-prep { transform: translateX(105%) !important; opacity: 0 !important; }
+
+    /* Animations: Slide Up */
+    .anim-slide-up-out { transform: translateY(-105%) !important; opacity: 0 !important; }
+    .anim-slide-up-in { transform: translateY(0) !important; opacity: 1 !important; }
+    .anim-slide-up-prep { transform: translateY(105%) !important; opacity: 0 !important; }
+
+    /* Animations: Zoom / Pop */
+    .anim-zoom-out { transform: scale(1.15) !important; opacity: 0 !important; }
+    .anim-zoom-in { transform: scale(1) !important; opacity: 1 !important; }
+    .anim-zoom-prep { transform: scale(0.82) !important; opacity: 0 !important; }
+
+    /* Animations: 3D Flip */
+    .anim-flip-out { transform: rotateY(-90deg) scale(0.85) !important; opacity: 0 !important; }
+    .anim-flip-in { transform: rotateY(0deg) scale(1) !important; opacity: 1 !important; }
+    .anim-flip-prep { transform: rotateY(90deg) scale(0.85) !important; opacity: 0 !important; }
+  </style>
+</head>
+<body>
+  <div id="banner-window-container" class="banner-container">
+    <!-- Minimal Header with Draggable Handle, Pagination and Close -->
+    <div class="banner-header">
+      <div class="banner-header-left">
+        <span class="banner-badge">📢 SPONSOR / PROMO</span>
+        <span id="banner-page-indicator" class="banner-page-indicator" style="display: none;">[1/1]</span>
+      </div>
+      <div class="banner-header-actions">
+        <button id="btn-banner-prev" class="hdr-nav-btn" title="Previous Ad" style="display: none;">◀</button>
+        <button id="btn-banner-next" class="hdr-nav-btn" title="Next Ad" style="display: none;">▶</button>
+        <button id="btn-banner-close" class="hdr-btn-close" title="Close Window">✕</button>
+      </div>
+    </div>
+
+    <!-- Banner Display Body with Dual-Layer Transition Stage -->
+    <div id="banner-body" class="banner-body">
+      <div id="banner-placeholder" class="banner-placeholder">
+        <span>🖼️ No image banner selected</span>
+        <span style="font-size: 10px; opacity: 0.7;">Select or upload images in Studio Panel</span>
+      </div>
+      <div id="banner-stage" class="banner-stage">
+        <img id="banner-slide-a" class="banner-slide active" alt="Sponsor Banner A" />
+        <img id="banner-slide-b" class="banner-slide" alt="Sponsor Banner B" />
+      </div>
+    </div>
+  </div>
+
+  <script src="banner.js"></script>
+</body>
+</html>

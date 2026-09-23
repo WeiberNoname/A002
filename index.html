@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: blob: file:; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: file: *; font-src 'self' data:; connect-src 'self' data: blob: file: *;">
+  <title>Desktop 3D Display</title>
+  <link rel="stylesheet" href="style.css">
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "./node_modules/three/build/three.module.js",
+      "i18next": "./node_modules/i18next/dist/esm/i18next.js"
+    }
+  }
+  </script>
+</head>
+
+<body>
+  <div id="container"></div>
+  
+  <!-- Settings Cog & Close App Buttons -->
+  <button id="settings-btn" class="settings-btn" title="Open Settings" data-i18n-title="open_settings"
+    style="display: none;">⚙️</button>
+  <button id="app-close-btn" class="app-close-btn" title="Close Application" data-i18n-title="close_app"
+    style="display: none;">✖</button>
+
+  <!-- Settings Panel Overlay -->
+  <div id="settings-panel" class="settings-panel hidden">
+    <!-- Header / Draggable Window Positioning Area -->
+    <div id="settings-header" class="settings-header" title="Drag to reposition window">
+      <h3 style="margin: 0; font-size: 1.15em; pointer-events: none;" data-i18n="settings_title">⚙️ Settings</h3>
+      <span class="settings-header-drag-hint" data-i18n="drag_hint">⠿ Drag to reposition</span>
+    </div>
+
+    <!-- Studio Tab Navigation Bar with Left/Right Scroll Arrows & Compact Save Action -->
+    <div class="studio-tab-nav-wrapper"
+      style="display: flex; align-items: center; gap: 4px; margin-bottom: 10px; flex-shrink: 0;">
+      <button id="tab-nav-left" class="btn studio-tab-nav-arrow" title="Previous Tab / Scroll Left" data-i18n-title="nav_prev_tab">◀</button>
+      <div id="studio-tab-bar" class="studio-tab-bar">
+        <button class="studio-tab-btn active" data-tab="tab-assets" data-i18n="tab_assets">📦 Asset Hub</button>
+        <button class="studio-tab-btn" data-tab="tab-display" data-i18n="tab_display">🎨 Studio</button>
+        <button class="studio-tab-btn" data-tab="tab-system" data-i18n="tab_system">⚙️ System</button>
+      </div>
+      <button id="tab-nav-right" class="btn studio-tab-nav-arrow" title="Next Tab / Scroll Right" data-i18n-title="nav_next_tab">▶</button>
+      <button id="save-btn" class="studio-btn-primary studio-tab-save-btn" title="Save & Refresh" data-i18n-title="save_btn">
+        💾 <span data-i18n="save_btn">Save & Refresh</span>
+      </button>
+    </div>
+
+    <!-- Studio Tab Content Container -->
+    <div class="studio-tab-content-container">
+
+      <!-- Tab 1: Universal Asset Hub & Ingestion (Default Active Tab) -->
+      <div id="tab-assets" class="studio-tab-content active">
+        
+        <!-- Live AI Mode Indicator & Neural Image Studio Action -->
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; gap: 6px; flex-wrap: wrap;">
+          <div id="ai-mode-indicator" style="font-size: 0.82em; font-weight: 700; padding: 4px 10px; border-radius: 20px; border: 1px solid rgba(245, 158, 11, 0.4); background: rgba(245, 158, 11, 0.18); color: #fbbf24;">
+            ⚡ Fallback Mode
+          </div>
+          <div style="display: flex; gap: 6px;">
+            <button id="btn-goto-chat-font" class="studio-btn-ghost" style="font-size: 0.78em; padding: 3px 10px; border: 1px solid rgba(245, 158, 11, 0.4); color: #fbbf24;" title="Configure Mascot Mail & Chat Font">🔤 Chat Font</button>
+            <button id="btn-toggle-sticker-studio" class="studio-btn-ghost" style="font-size: 0.78em; padding: 3px 10px; border: 1px solid rgba(168, 85, 247, 0.4); color: #d8b4fe;" title="Open Local AI Image Studio">🎨 Local AI Image Studio</button>
+            <button id="btn-toggle-devlab" class="studio-btn-ghost" style="font-size: 0.78em; padding: 3px 10px; border: 1px solid rgba(56, 189, 248, 0.4); color: #38bdf8;" title="Open Autonomous Coding Agent (DevLab)">💻 DevLab Agent</button>
+          </div>
+        </div>
+
+        <!-- 🎨 Local Neural Image Studio Panel -->
+        <div id="sticker-studio-panel" class="studio-card sticker-studio-panel" style="display: none; margin-bottom: 10px; border: 1px solid rgba(168, 85, 247, 0.35); background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(14px);">
+          <div class="studio-card-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span class="studio-card-title" style="color: #d8b4fe; font-size: 0.92em;">🎨 Local Neural Image Studio</span>
+              <span id="studio-status-badge" class="studio-badge" style="font-size: 0.72em; background: rgba(168, 85, 247, 0.2); color: #d8b4fe; border: 1px solid rgba(168, 85, 247, 0.4);">Ready</span>
+            </div>
+            <div style="display: flex; gap: 6px; align-items: center;">
+              <button id="btn-close-sticker-studio" class="studio-btn-ghost" style="padding: 2px 7px; font-size: 0.8em;" title="Close Studio">✖</button>
+            </div>
+          </div>
+
+          <!-- Studio Layout Grid: Preview & Controls -->
+          <div class="sticker-studio-grid">
+            <!-- Live Preview Canvas / Image Frame -->
+            <div class="studio-preview-box">
+              <canvas id="studio-preview-canvas" width="370" height="320" style="display: none;"></canvas>
+              <img id="studio-preview-img" alt="AI Generated Image" />
+              <div id="studio-toast" class="studio-toast"></div>
+            </div>
+
+            <!-- Interactive Clickable Studio Controls -->
+            <div class="studio-controls-box">
+              <!-- txt2img Neural Controls -->
+              <div id="studio-txt2img-controls">
+                <!-- Model Provider Selector -->
+                <div class="studio-control-group">
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                    <span class="studio-control-label">Local Image Model Provider:</span>
+                    <select id="studio-image-provider" class="studio-select" style="font-size: 0.76em; padding: 2px 6px; width: auto; color: #38bdf8; background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 6px; cursor: pointer;">
+                      <option value="auto" selected>⚡ Auto (Local SD / ComfyUI / Built-in)</option>
+                      <option value="sd_webui">🖥️ Local SD WebUI (localhost:7860)</option>
+                      <option value="comfyui">⚙️ Local ComfyUI (localhost:8188)</option>
+                      <option value="procedural">🎨 Built-in Offline Engine</option>
+                    </select>
+                  </div>
+                </div>
+
+                <!-- Art Style Selector -->
+                <div class="studio-control-group">
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                    <span class="studio-control-label">Art & Visual Style:</span>
+                    <select id="studio-image-style" class="studio-select" style="font-size: 0.76em; padding: 2px 6px; width: auto; color: #fbbf24; background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(251, 191, 36, 0.4); border-radius: 6px; cursor: pointer;">
+                      <option value="auto" selected>✨ Auto (Smart Prompt Style)</option>
+                      <option value="watercolor">🖌️ Painterly Watercolor</option>
+                      <option value="anime">🌸 Anime Cel & Manga</option>
+                      <option value="pixel_art">👾 Retro 16-Bit Pixel</option>
+                      <option value="landscape">🌄 Organic Scenery & Vista</option>
+                      <option value="oil_painting">🎨 Impressionist Oil</option>
+                      <option value="cyberpunk">⚡ Cyberpunk Neon</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="studio-control-group">
+                  <span class="studio-control-label">Local Offline Image Prompt:</span>
+                  <div style="display: flex; gap: 4px;">
+                    <input type="text" id="studio-prompt-input" class="studio-input" value="" placeholder="Enter any prompt to generate offline (e.g. golden sunset over ocean, neon dragon, cyber castle)..." style="font-size: 0.82em; padding: 4px 8px; flex: 1;">
+                    <button id="btn-studio-generate-txt2img" class="studio-btn-primary" style="padding: 4px 12px; font-size: 0.82em; background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%); font-weight: 600;">⚡ Generate</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Action Toolbar -->
+              <div class="studio-actions-bar" style="display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap;">
+                <button id="btn-studio-copy" class="studio-btn-ghost" style="font-size: 0.78em; padding: 4px 8px;" title="Copy PNG to clipboard">📋 Copy</button>
+                <button id="btn-studio-save" class="studio-btn-ghost" style="font-size: 0.78em; padding: 4px 8px;" title="Save PNG to disk">💾 Save PNG</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Ingestion Dropzone Card -->
+        <div class="studio-card">
+          <div class="studio-card-header">
+            <span class="studio-card-title" data-i18n="asset_hub_title">📦 Universal Asset Importer</span>
+          </div>
+
+          <input type="file" id="asset-hub-file-input" multiple accept=".glb,.gltf,.fbx,.obj,.png,.jpg,.jpeg,.webp,.svg,.gif" style="display: none;">
+          <div id="asset-hub-dropzone" class="studio-dropzone">
+            <span style="font-size: 1.6em;">📥</span>
+            <div style="font-size: 0.95em; font-weight: 600; color: #ffffff; margin-top: 4px;" data-i18n="asset_drop_title">Drag & Drop Any Asset File Here</div>
+            <div style="font-size: 0.8em; color: #d1d5db; margin: 3px 0 8px 0;" data-i18n="asset_drop_sub">Auto-detects 3D Models (.glb, .fbx) and Textures (.png, .jpg)</div>
+            <button id="btn-asset-hub-browse" class="asset-btn-action" style="padding: 5px 16px; width: auto; display: inline-block;" data-i18n="asset_browse_btn">📁 Browse Files</button>
+          </div>
+        </div>
+
+        <!-- Centralized Asset Library Card -->
+        <div class="studio-card">
+          <div class="studio-card-header">
+            <span class="studio-card-title" data-i18n="asset_library_title">🗃️ Asset Library</span>
+            <span id="asset-count-badge" class="studio-badge studio-badge-amber">0 Assets</span>
+          </div>
+
+          <!-- Dynamic Asset Library Grid -->
+          <div id="asset-library-grid" class="asset-library-grid"></div>
+        </div>
+      </div>
+
+      <!-- Tab 3: Unified Studio (Mascot & Screen Vision) -->
+      <div id="tab-display" class="studio-tab-content">
+        <!-- 1. Mascot & Model Library Card -->
+        <div class="studio-card">
+          <div class="studio-card-header">
+            <span class="studio-card-title" data-i18n="active_mascot">🎯 Mascot & Model Library</span>
+            <span id="mascot-count-badge" class="studio-badge studio-badge-amber">2 Mascots</span>
+          </div>
+
+          <!-- Mascot Selection Grid -->
+          <input type="hidden" id="model-select" value="procedural">
+          <div id="model-select-grid" class="studio-select-grid" style="margin-top: 6px;"></div>
+        </div>
+
+        <!-- 2. Mascot Animation Controls Card -->
+        <div class="studio-card">
+          <div class="studio-card-header">
+            <span class="studio-card-title" data-i18n="active_animation">🎬 Mascot Animations</span>
+          </div>
+          <div class="studio-row" id="anim-select-container">
+            <div class="studio-row-label">
+              <label for="anim-select" class="studio-row-title" data-i18n="active_animation">Active Animation</label>
+              <span class="studio-row-sub">Skeletal animation clip</span>
+            </div>
+            <select id="anim-select" class="studio-select" style="width: 150px;">
+              <option value="none" data-i18n="anim_static">None (Static Pose)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- 💌 Mascot Mail & Desktop Chat Font Settings Card -->
+        <div class="studio-card" id="mascot-mail-chat-card" style="border: 1px solid rgba(245, 158, 11, 0.55); background: linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(168, 85, 247, 0.1)); box-shadow: 0 4px 14px rgba(245, 158, 11, 0.15);">
+          <div class="studio-card-header">
+            <span class="studio-card-title" style="color: #fbbf24; font-weight: 700;">💌 Mascot Mail & Desktop Chat Font</span>
+            <span class="studio-badge studio-badge-amber">TYPOGRAPHY</span>
+          </div>
+          <div style="font-size: 0.8em; color: #d1d5db; margin-bottom: 8px; line-height: 1.35;">
+            Customize the font family for Mascot Mail letters, 3D speech bubbles, and Desktop Chat bar.
+          </div>
+
+          <!-- Font Family Selector -->
+          <div class="studio-row">
+            <div class="studio-row-label">
+              <label for="mascot-chat-font" class="studio-row-title" data-i18n="mascot_chat_font" style="font-weight: 600;">Mascot Chat Font</label>
+              <span class="studio-row-sub" data-i18n="mascot_chat_font_sub">Mail & speech bubble typeface</span>
+            </div>
+            <select id="mascot-chat-font" class="studio-select" style="width: 175px; font-weight: 600;">
+              <option value="inherit" selected>⚡ System Default</option>
+              <option value="'Segoe UI', system-ui, -apple-system, sans-serif">✨ Modern Clean (Segoe UI)</option>
+              <option value="'Comic Sans MS', 'Comic Neue', cursive, sans-serif">🐰 Cute Playful (Comic)</option>
+              <option value="'Quicksand', 'Nunito', 'Segoe UI', sans-serif">🌸 Rounded Soft</option>
+              <option value="'Consolas', 'Courier New', monospace">💻 Cyber Monospace</option>
+              <option value="'Georgia', 'Times New Roman', serif">📜 Vintage Letter (Serif)</option>
+              <option value="'Segoe Print', 'Caveat', cursive">✍️ Handwritten Quill</option>
+              <option value="'Trebuchet MS', 'Lucida Sans', sans-serif">🎨 Neo-Grotesque</option>
+              <option value="'Impact', 'Arial Black', sans-serif">💥 Bold Pop</option>
+              <option value="custom">✏️ Custom Font...</option>
+            </select>
+          </div>
+
+          <!-- Custom Font Input Container -->
+          <div id="mascot-chat-font-custom-container" class="studio-row" style="display: none;">
+            <div class="studio-row-label">
+              <label for="mascot-chat-font-custom" class="studio-row-title" data-i18n="mascot_chat_font_custom">Custom Font Name</label>
+              <span class="studio-row-sub">e.g. Fira Code, Papyrus</span>
+            </div>
+            <input type="text" id="mascot-chat-font-custom" class="studio-input" placeholder="Type font name..." style="width: 175px; font-size: 0.8em; padding: 4px 8px;">
+          </div>
+
+          <!-- Chat Font Size Selector -->
+          <div class="studio-row">
+            <div class="studio-row-label">
+              <label for="mascot-chat-font-size" class="studio-row-title" data-i18n="mascot_chat_font_size">Chat Font Size</label>
+              <span class="studio-row-sub" data-i18n="mascot_chat_font_size_sub">Speech bubble & mail text size</span>
+            </div>
+            <div class="studio-number-wrapper">
+              <input type="number" id="mascot-chat-font-size" class="studio-number-input" min="10" max="28" step="1" value="14">
+              <span class="studio-unit-suffix">px</span>
+            </div>
+          </div>
+
+          <!-- Live Sample Preview Box -->
+          <div style="margin-top: 8px; padding: 8px 12px; border-radius: 8px; background: rgba(0, 0, 0, 0.4); border: 1px dashed rgba(245, 158, 11, 0.4);">
+            <div style="font-size: 0.7em; color: #fbbf24; text-transform: uppercase; font-weight: 700; margin-bottom: 3px;">Live Sample Preview</div>
+            <div id="mascot-font-preview-box" style="font-size: 0.9em; color: #f3f4f6; line-height: 1.4; font-family: var(--mascot-chat-font, inherit); min-height: 22px;">
+              💌 "Hello master! The quick brown fox jumps over the lazy dog."
+            </div>
+          </div>
+
+          <!-- Test Font Button -->
+          <div style="margin-top: 8px; display: flex; justify-content: flex-end;">
+            <button id="btn-test-chat-font" type="button" class="studio-btn-ghost" style="font-size: 0.78em; padding: 4px 10px; border: 1px solid rgba(245, 158, 11, 0.4); color: #fbbf24;">
+              💬 Test Font in 3D Speech Bubble
+            </button>
+          </div>
+        </div>
+
+        <!-- 2.5 🗣️ Mascot Speech Voice (TTS) Card -->
+        <div id="mascot-voice-card" class="studio-card" style="border: 1px solid rgba(192, 132, 252, 0.35); background: rgba(30, 27, 75, 0.25);">
+          <div class="studio-card-header">
+            <span class="studio-card-title" style="color: #c084fc; font-weight: 700;" data-i18n="mascot_voice_title">🗣️ Mascot Speech Voice (TTS)</span>
+            <span class="studio-badge studio-badge-purple">AUDIO</span>
+          </div>
+          <div style="font-size: 0.8em; color: #d1d5db; margin-bottom: 8px; line-height: 1.35;" data-i18n="mascot_voice_desc">
+            Customize the speech voice persona, pitch, and speed for mascot mail readings and speech bubbles.
+          </div>
+
+          <!-- Voice Persona Preset -->
+          <div class="studio-row">
+            <div class="studio-row-label">
+              <label for="mascot-voice-preset" class="studio-row-title" data-i18n="mascot_voice_preset" style="font-weight: 600;">Voice Persona</label>
+              <span class="studio-row-sub" data-i18n="mascot_voice_preset_sub">Pre-tuned voice style & pitch</span>
+            </div>
+            <select id="mascot-voice-preset" class="studio-select" style="width: 185px; font-weight: 600;">
+              <option value="female_anime" selected>🌸 Anime / Cheerful Girl</option>
+              <option value="female_natural">👩 Natural Female (Zira/Local)</option>
+              <option value="cute_pet">👧 Cute / Soft Pet</option>
+              <option value="male_gentle">👨 Gentle Male (David/Mark)</option>
+              <option value="cyber_robot">🤖 Cyber / Futuristic</option>
+              <option value="custom">⚙️ Custom Voice Tuning</option>
+            </select>
+          </div>
+
+          <!-- Windows Installed TTS Voice Select -->
+          <div class="studio-row">
+            <div class="studio-row-label">
+              <label for="mascot-voice-select" class="studio-row-title" data-i18n="mascot_voice_select">System Voice Model</label>
+              <span class="studio-row-sub" data-i18n="mascot_voice_select_sub">Installed Windows TTS voice</span>
+            </div>
+            <select id="mascot-voice-select" class="studio-select" style="width: 185px;">
+              <option value="auto" selected>⚡ Auto (Match Language & Preset)</option>
+            </select>
+          </div>
+
+          <!-- Voice Pitch Slider -->
+          <div class="studio-row">
+            <div class="studio-row-label">
+              <label for="mascot-voice-pitch" class="studio-row-title" data-i18n="mascot_voice_pitch">Voice Pitch</label>
+              <span class="studio-row-sub" data-i18n="mascot_voice_pitch_sub">Higher: cute/anime | Lower: mature</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <input type="range" id="mascot-voice-pitch" min="0.5" max="2.0" step="0.05" value="1.25" style="width: 130px; accent-color: #c084fc; cursor: pointer;">
+              <span id="mascot-voice-pitch-val" style="font-size: 0.82em; font-weight: 700; color: #c084fc; min-width: 42px;">1.25x</span>
+            </div>
+          </div>
+
+          <!-- Voice Rate/Speed Slider -->
+          <div class="studio-row">
+            <div class="studio-row-label">
+              <label for="mascot-voice-rate" class="studio-row-title" data-i18n="mascot_voice_rate">Speaking Speed</label>
+              <span class="studio-row-sub" data-i18n="mascot_voice_rate_sub">Tempo & cadence</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <input type="range" id="mascot-voice-rate" min="0.6" max="1.6" step="0.05" value="1.0" style="width: 130px; accent-color: #c084fc; cursor: pointer;">
+              <span id="mascot-voice-rate-val" style="font-size: 0.82em; font-weight: 700; color: #c084fc; min-width: 42px;">1.00x</span>
+            </div>
+          </div>
+
+          <!-- Test Voice Button -->
+          <div style="margin-top: 8px; display: flex; justify-content: flex-end;">
+            <button id="btn-test-mascot-voice" type="button" class="studio-btn-ghost" style="font-size: 0.82em; padding: 4px 12px; border: 1px solid rgba(192, 132, 252, 0.4); color: #c084fc; font-weight: 600;">
+              ▶ <span data-i18n="mascot_voice_test">Test Voice (Speak Sample)</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 3. 🎭 Persona & Character Customizer Card -->
+        <div class="studio-card">
+          <div class="studio-card-header">
+            <span class="studio-card-title">🎭 Persona & Character Customizer</span>
+            <span class="studio-badge studio-badge-cyan">TEXT AI</span>
+          </div>
+          <div style="font-size: 0.8em; color: #9ca3af; margin-bottom: 8px; line-height: 1.35;">
+            Choose a companion archetype or write custom instructions (tone, nickname, backstory, speaking style).
+          </div>
+
+          <!-- Persona Preset Selector -->
+          <div class="studio-row">
+            <div class="studio-row-label">
+              <label for="ai-persona-preset" class="studio-row-title">Persona Preset</label>
+              <span class="studio-row-sub">Quick archetype template</span>
+            </div>
+            <select id="ai-persona-preset" class="studio-select" style="width: 175px;">
+              <option value="supportive" selected>☕ Supportive Friend</option>
+              <option value="tsundere">😤 Tsundere Partner</option>
+              <option value="maid">🧹 Devoted Maid / Butler</option>
+              <option value="cyber_ai">🤖 Cyberpunk AI</option>
+              <option value="study_buddy">📚 Study & Focus Buddy</option>
+              <option value="custom">✍️ Custom Persona</option>
+            </select>
+          </div>
+
+          <!-- Multi-Language Response Selector -->
+          <div class="studio-row">
+            <div class="studio-row-label">
+              <label for="ai-response-language" class="studio-row-title">Reply Language</label>
+              <span class="studio-row-sub">AI output language</span>
+            </div>
+            <select id="ai-response-language" class="studio-select" style="width: 175px;">
+              <option value="auto" selected>🌐 Auto (Match User)</option>
+              <option value="en">🇺🇸 English</option>
+              <option value="zh-TW">🇹🇼 繁體中文 (Traditional)</option>
+              <option value="zh-CN">🇨🇳 简体中文 (Simplified)</option>
+              <option value="ja">🇯🇵 日本語 (Japanese)</option>
+              <option value="ko">🇰🇷 한국어 (Korean)</option>
+              <option value="es">🇪🇸 Español (Spanish)</option>
+              <option value="fr">🇫🇷 Français (French)</option>
+              <option value="de">🇩🇪 Deutsch (German)</option>
+            </select>
+          </div>
+
+          <!-- Reply Style Selector -->
+          <div class="studio-row">
+            <div class="studio-row-label">
+              <label for="ai-reply-style-preset" class="studio-row-title">Reply Style</label>
+              <span class="studio-row-sub">Speaking demeanor</span>
+            </div>
+            <select id="ai-reply-style-preset" class="studio-select" style="width: 175px;">
+              <option value="default" selected>💬 Natural & Balanced</option>
+              <option value="short">⚡ Short (Concise, punchy)</option>
+              <option value="brave">🛡️ Brave (Heroic & fearless)</option>
+              <option value="direct">🎯 Direct (Straightforward, blunt)</option>
+              <option value="patient">🕊️ Patient (Gentle & comforting)</option>
+              <option value="crazy">🌀 Crazy (Wild & eccentric)</option>
+              <option value="cool">😎 Cool (Suave & unflappable)</option>
+              <option value="captain_like">⚓ Captain-like (Authoritative)</option>
+              <option value="custom">✍️ Custom Style Prompt...</option>
+            </select>
+          </div>
+
+          <!-- Custom Style Prompt (Visible when style is Custom) -->
+          <div id="ai-custom-style-container" style="display: none; margin-top: 4px; margin-bottom: 6px;">
+            <label for="ai-custom-style-prompt" style="font-size: 0.75em; font-weight: 600; color: #a855f7;">Custom Reply Style Prompt:</label>
+            <input type="text" id="ai-custom-style-prompt" class="studio-input" placeholder="e.g. Speak like a mysterious time traveler, witty and poetic..." style="width: 100%; font-size: 0.8em; margin-top: 2px;">
+          </div>
+
+          <!-- Preferred Words / Host Words from User -->
+          <div style="margin-top: 6px; margin-bottom: 8px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
+              <label for="ai-preferred-words" class="studio-row-title" style="font-size: 0.8em; color: #38bdf8;">Hosted Words & Catchphrases:</label>
+              <span style="font-size: 0.7em; color: #9ca3af;">Weaved naturally into replies</span>
+            </div>
+            <input type="text" id="ai-preferred-words" class="studio-input" placeholder="e.g. Aye aye, matey, by the stars, bazinga, roger that..." style="width: 100%; font-size: 0.82em; padding: 5px 8px;">
+          </div>
+
+          <!-- Customizable Persona Prompt Text Area -->
+          <div style="margin-top: 8px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+              <label for="ai-persona-prompt" style="font-size: 0.8em; font-weight: 700; color: #38bdf8;">Custom Persona Prompt (Live Editable):</label>
+              <span id="ai-persona-saved-hint" style="font-size: 0.72em; color: #34d399; display: none;">✓ Persona Active</span>
+            </div>
+            <textarea id="ai-persona-prompt" class="studio-input" style="width: 100%; height: 72px; font-size: 0.82em; line-height: 1.35; resize: vertical; background: rgba(18, 20, 32, 0.85); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 6px; padding: 6px 8px; color: #ffffff; font-family: inherit;" placeholder="Type any character or persona (e.g. Batman, Sherlock Holmes, Tsundere, or custom personality prompt)..."></textarea>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 6px; gap: 8px; flex-wrap: wrap;">
+              <button id="btn-goto-chat" class="studio-btn-ghost" style="font-size: 0.78em; padding: 5px 10px;" title="Open Companion Live Chat">💬 Open Companion Chat</button>
+              <button id="btn-ai-persona-apply" class="studio-btn-primary" style="font-size: 0.78em; padding: 5px 12px; font-weight: 700; background: linear-gradient(135deg, #a855f7 0%, #7e22ce 100%); border-radius: 6px;">⚡ Apply Persona & Test Greeting</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Tab 3: System & Preferences (Centralized Configuration Hub) -->
+      <div id="tab-system" class="studio-tab-content">
+        <!-- 0. Neural LLM & Local AI Model Configuration Card -->
+        <div id="ai-settings-panel" class="studio-card">
+          <div class="studio-card-header">
+            <span class="studio-card-title">🤖 Local Neural AI Model Configuration</span>
+          </div>
+
+          <div style="font-size: 0.82em; color: #9ca3af; margin-bottom: 8px; line-height: 1.35;">
+            Configure local Ollama / neural LLM service endpoints for AI Companion & Mascot features.
+          </div>
+
+          <!-- Live Connection Status Banner -->
+          <div id="ai-connection-status-badge" style="display: flex; align-items: center; justify-content: space-between; font-size: 0.82em; padding: 5px 8px; border-radius: 5px; margin-bottom: 8px; background: rgba(243, 156, 18, 0.12); border: 1px solid rgba(243, 156, 18, 0.35); color: #f39c12;">
+            <span id="ai-status-text">⚡ Status: Checking neural endpoint connection...</span>
+            <button id="btn-ai-ping-endpoint" class="studio-btn-ghost" style="padding: 2px 6px; font-size: 0.85em;">🔄 Check</button>
+          </div>
+
+          <div class="studio-row">
+            <div class="studio-row-label">
+              <span class="studio-row-title" data-i18n="ai_context_retrieval_toggle">AI Context & State Awareness</span>
+              <span class="studio-row-sub" data-i18n="ai_context_retrieval_sub">Feed real-time app telemetry and state to AI</span>
+            </div>
+            <label class="studio-switch">
+              <input type="checkbox" id="ai-context-retrieval-enable" checked>
+              <span class="studio-slider-knob"></span>
+            </label>
+          </div>
+
+          <div class="studio-row">
+            <div class="studio-row-label">
+              <label for="ai-provider-select" class="studio-row-title" data-i18n="ai_provider">Provider Preset</label>
+            </div>
+            <select id="ai-provider-select" class="studio-select" style="width: 175px;">
+              <option value="ollama" selected>Ollama Local (localhost:11434 - llama3.2)</option>
+              <option value="lmstudio">LM Studio Local (localhost:1234)</option>
+              <option value="groq">Groq Cloud (Fast Free - Llama-3.3-70B)</option>
+              <option value="openrouter">OpenRouter Cloud (Free Tier Models)</option>
+              <option value="deepseek">DeepSeek API (deepseek-chat)</option>
+              <option value="openai">OpenAI (gpt-4o-mini)</option>
+              <option value="custom">Custom OpenAI Endpoint</option>
+            </select>
+          </div>
+
+          <div class="studio-row">
+            <div class="studio-row-label">
+              <label for="ai-endpoint-url" class="studio-row-title" data-i18n="ai_endpoint">Endpoint URL</label>
+            </div>
+            <input type="text" id="ai-endpoint-url" value="http://localhost:11434/v1" class="studio-select" style="width: 175px;">
+          </div>
+
+          <div class="studio-row">
+            <div class="studio-row-label">
+              <label for="ai-model-name" class="studio-row-title" data-i18n="ai_model">Model Name</label>
+            </div>
+            <input type="text" id="ai-model-name" value="llama3.2" class="studio-select" style="width: 175px;">
+          </div>
+
+          <div id="ai-api-key-container" class="studio-row">
+            <div class="studio-row-label">
+              <label for="ai-api-key" class="studio-row-title" data-i18n="ai_api_key">API Key</label>
+            </div>
+            <input type="password" id="ai-api-key" placeholder="Optional for local" class="studio-select" style="width: 175px;">
+          </div>
+
+          <div class="studio-row">
+            <div class="studio-row-label">
+              <label for="ai-retriever-preset" class="studio-row-title" data-i18n="ai_retriever_preset">Knowledge Retriever</label>
+            </div>
+            <select id="ai-retriever-preset" class="studio-select" style="width: 175px;">
+              <option value="builtin_rag" selected>Built-in RAG Telemetry</option>
+              <option value="deep_inspection">Deep Subsystem Spec</option>
+              <option value="custom_endpoint">Secondary Endpoint</option>
+            </select>
+          </div>
+
+          <div id="ai-custom-retriever-box" class="studio-row" style="display: none;">
+            <div class="studio-row-label">
+              <label for="ai-retriever-endpoint" class="studio-row-title" data-i18n="ai_retriever_endpoint">Secondary Endpoint</label>
+            </div>
+            <input type="text" id="ai-retriever-endpoint" value="http://localhost:11434/v1" class="studio-select" style="width: 175px;">
+          </div>
+        </div>
+
+        <!-- 1. System & Localization Card -->
+        <div class="studio-card">
+          <div class="studio-card-header">
+            <span class="studio-card-title">⚙️ System & Localization</span>
+          </div>
+
+          <div class="studio-row">
+            <div class="studio-row-label">
+              <label for="lang-select" class="studio-row-title" data-i18n="language">Language / 语言</label>
+            </div>
+            <select id="lang-select" class="studio-select" style="width: 170px;">
+              <option value="en">English</option>
+              <option value="zh-CN">简体中文 (Simplified Chinese)</option>
+              <option value="zh-TW">繁體中文 (Traditional Chinese)</option>
+              <option value="ja">日本語 (Japanese)</option>
+              <option value="ko">한국어 (Korean)</option>
+              <option value="fr">Français (French)</option>
+              <option value="de">Deutsch (German)</option>
+              <option value="es">Español (Spanish - Spain)</option>
+              <option value="es-419">Español (Latinoamérica)</option>
+              <option value="it">Italiano (Italian)</option>
+              <option value="pt-BR">Português (Brasil)</option>
+              <option value="ru">Русский (Russian)</option>
+            </select>
+          </div>
+
+          <div class="studio-row">
+            <div class="studio-row-label">
+              <label for="font-scale" class="studio-row-title" data-i18n="font_scale">Panel Text Size</label>
+              <span class="studio-row-sub">UI font scaling (0.4x–4.0x)</span>
+            </div>
+            <div class="studio-number-wrapper">
+              <input type="number" id="font-scale" class="studio-number-input" min="0.4" max="4.0" step="0.05" value="1.50">
+              <span class="studio-unit-suffix">x</span>
+            </div>
+          </div>
+
+          <!-- Mascot Mail Chat Font (System Tab Access) -->
+          <div class="studio-row">
+            <div class="studio-row-label">
+              <label for="mascot-chat-font-system" class="studio-row-title" data-i18n="mascot_chat_font">Mascot Chat Font</label>
+              <span class="studio-row-sub" data-i18n="mascot_chat_font_sub">Mail & speech bubble typeface</span>
+            </div>
+            <select id="mascot-chat-font-system" class="studio-select" style="width: 175px;">
+              <option value="inherit" selected>⚡ System Default</option>
+              <option value="'Segoe UI', system-ui, -apple-system, sans-serif">✨ Modern Clean (Segoe UI)</option>
+              <option value="'Comic Sans MS', 'Comic Neue', cursive, sans-serif">🐰 Cute Playful (Comic)</option>
+              <option value="'Quicksand', 'Nunito', 'Segoe UI', sans-serif">🌸 Rounded Soft</option>
+              <option value="'Consolas', 'Courier New', monospace">💻 Cyber Monospace</option>
+              <option value="'Georgia', 'Times New Roman', serif">📜 Vintage Letter (Serif)</option>
+              <option value="'Segoe Print', 'Caveat', cursive">✍️ Handwritten Quill</option>
+              <option value="'Trebuchet MS', 'Lucida Sans', sans-serif">🎨 Neo-Grotesque</option>
+              <option value="'Impact', 'Arial Black', sans-serif">💥 Bold Pop</option>
+              <option value="custom">✏️ Custom Font...</option>
+            </select>
+          </div>
+
+          <div id="mascot-chat-font-system-custom-container" class="studio-row" style="display: none;">
+            <div class="studio-row-label">
+              <label for="mascot-chat-font-system-custom" class="studio-row-title" data-i18n="mascot_chat_font_custom">Custom Font Name</label>
+              <span class="studio-row-sub">e.g. Fira Code, Papyrus</span>
+            </div>
+            <input type="text" id="mascot-chat-font-system-custom" class="studio-input" placeholder="Type font name..." style="width: 175px; font-size: 0.8em; padding: 4px 8px;">
+          </div>
+
+          <div class="studio-row">
+            <div class="studio-row-label">
+              <label for="mascot-chat-font-size-system" class="studio-row-title" data-i18n="mascot_chat_font_size">Chat Font Size</label>
+              <span class="studio-row-sub" data-i18n="mascot_chat_font_size_sub">Speech bubble & mail text size</span>
+            </div>
+            <div class="studio-number-wrapper">
+              <input type="number" id="mascot-chat-font-size-system" class="studio-number-input" min="10" max="28" step="1" value="14">
+              <span class="studio-unit-suffix">px</span>
+            </div>
+          </div>
+
+          <div class="studio-row">
+            <div class="studio-row-label">
+              <label for="win-width" class="studio-row-title" data-i18n="win_width">Window Width</label>
+              <span class="studio-row-sub">Display viewport span</span>
+            </div>
+            <div class="studio-number-wrapper">
+              <input type="number" id="win-width" class="studio-number-input" min="30" max="3840" step="10" value="350">
+              <span class="studio-unit-suffix">px</span>
+            </div>
+          </div>
+
+          <div class="studio-row">
+            <div class="studio-row-label">
+              <label for="win-height" class="studio-row-title" data-i18n="win_height">Window Height</label>
+              <span class="studio-row-sub">Display viewport span</span>
+            </div>
+            <div class="studio-number-wrapper">
+              <input type="number" id="win-height" class="studio-number-input" min="30" max="2160" step="10" value="350">
+              <span class="studio-unit-suffix">px</span>
+            </div>
+          </div>
+
+          <div class="studio-row">
+            <div class="studio-row-label">
+              <label for="model-scale" class="studio-row-title" data-i18n="model_scale">Model Scale</label>
+              <span class="studio-row-sub">3D mascot multiplier</span>
+            </div>
+            <div class="studio-number-wrapper">
+              <input type="number" id="model-scale" class="studio-number-input" min="0.1" max="5.0" step="0.05" value="1.00">
+              <span class="studio-unit-suffix">x</span>
+            </div>
+          </div>
+
+          <div class="studio-row">
+            <div class="studio-row-label">
+              <span class="studio-row-title" data-i18n="settings_left">Place Settings Icon on Left</span>
+            </div>
+            <label class="studio-switch">
+              <input type="checkbox" id="settings-left">
+              <span class="studio-slider-knob"></span>
+            </label>
+          </div>
+        </div>
+
+        <!-- 2. Motion & GPU Performance Card -->
+        <div class="studio-card">
+          <div class="studio-card-header">
+            <span class="studio-card-title" data-i18n="motion_section">🌀 Motion & GPU Performance</span>
+          </div>
+
+          <div class="studio-row">
+            <div class="studio-row-label">
+              <label for="target-fps" class="studio-row-title" data-i18n="target_fps">Target Frame Rate</label>
+              <span class="studio-row-sub">Rendering refresh rate (15–240)</span>
+            </div>
+            <div class="studio-number-wrapper">
+              <input type="number" id="target-fps" class="studio-number-input" min="15" max="240" step="1" value="60">
+              <span class="studio-unit-suffix">FPS</span>
+            </div>
+          </div>
+
+          <div class="studio-row">
+            <div class="studio-row-label">
+              <span class="studio-row-title" data-i18n="idle_bobbing">Enable Idle Bobbing</span>
+            </div>
+            <label class="studio-switch">
+              <input type="checkbox" id="model-bobbing" checked>
+              <span class="studio-slider-knob"></span>
+            </label>
+          </div>
+
+          <div class="studio-row">
+            <div class="studio-row-label">
+              <span class="studio-row-title" data-i18n="lock_position">Lock Mascot Position</span>
+            </div>
+            <label class="studio-switch">
+              <input type="checkbox" id="lock-position">
+              <span class="studio-slider-knob"></span>
+            </label>
+          </div>
+
+          <div class="studio-row">
+            <div class="studio-row-label">
+              <span class="studio-row-title" data-i18n="view_only">View Only Mode (Fades on Hover)</span>
+              <span class="studio-row-sub" data-i18n="view_only_sub">Toggle with Ctrl + V</span>
+            </div>
+            <label class="studio-switch">
+              <input type="checkbox" id="view-only">
+              <span class="studio-slider-knob"></span>
+            </label>
+          </div>
+
+          <div class="studio-row">
+            <div class="studio-row-label">
+              <span class="studio-row-title" data-i18n="dynamic_battery_saver">Dynamic Battery Saver</span>
+              <span class="studio-row-sub" data-i18n="dynamic_battery_saver_sub">Auto-throttles FPS when idle/unfocused</span>
+            </div>
+            <label class="studio-switch">
+              <input type="checkbox" id="dynamic-battery-saver">
+              <span class="studio-slider-knob"></span>
+            </label>
+          </div>
+
+          <div class="studio-row">
+            <div class="studio-row-label">
+              <span class="studio-row-title" data-i18n="idle_fps_saver">Idle Frame Rate Saver (30 FPS)</span>
+              <span class="studio-row-sub" data-i18n="idle_fps_saver_sub">Caps idle rendering</span>
+            </div>
+            <label class="studio-switch">
+              <input type="checkbox" id="idle-fps-saver">
+              <span class="studio-slider-knob"></span>
+            </label>
+          </div>
+
+          <div class="studio-row">
+            <div class="studio-row-label">
+              <span class="studio-row-title" data-i18n="gpu_optimize">Force High-Performance GPU</span>
+              <span class="studio-row-sub" data-i18n="gpu_sub">Requires Restart</span>
+            </div>
+            <label class="studio-switch">
+              <input type="checkbox" id="gpu-optimize" checked>
+              <span class="studio-slider-knob"></span>
+            </label>
+          </div>
+
+          <div class="studio-row">
+            <div class="studio-row-label">
+              <span class="studio-row-title" data-i18n="gpu_low_power">Low-Power GPU Battery Saver</span>
+              <span class="studio-row-sub" data-i18n="gpu_low_power_sub">Requires Restart</span>
+            </div>
+            <label class="studio-switch">
+              <input type="checkbox" id="gpu-low-power">
+              <span class="studio-slider-knob"></span>
+            </label>
+          </div>
+
+          <div class="studio-row">
+            <div class="studio-row-label">
+              <span class="studio-row-title" data-i18n="mouse_optimize">Seamless Performance Mode</span>
+              <span class="studio-row-sub" data-i18n="mouse_sub">Throttled Proxy</span>
+            </div>
+            <label class="studio-switch">
+              <input type="checkbox" id="mouse-optimize" checked>
+              <span class="studio-slider-knob"></span>
+            </label>
+          </div>
+        </div>
+
+        <!-- 3. Axis Spinning Card -->
+        <div class="studio-card">
+          <div class="studio-card-header">
+            <span class="studio-card-title" data-i18n="spin_controls">Axis Spinning</span>
+          </div>
+
+          <div class="studio-row">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <label class="studio-switch">
+                <input type="checkbox" id="spin-x">
+                <span class="studio-slider-knob"></span>
+              </label>
+              <label for="speed-x" class="studio-row-title" data-i18n="axis_x">X Axis Spin</label>
+            </div>
+            <div class="studio-number-wrapper">
+              <input type="number" id="speed-x" class="studio-number-input" min="-5.0" max="5.0" step="0.1" value="1.0">
+              <span class="studio-unit-suffix">rad/s</span>
+            </div>
+          </div>
+
+          <div class="studio-row">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <label class="studio-switch">
+                <input type="checkbox" id="spin-y">
+                <span class="studio-slider-knob"></span>
+              </label>
+              <label for="speed-y" class="studio-row-title" data-i18n="axis_y">Y Axis Spin</label>
+            </div>
+            <div class="studio-number-wrapper">
+              <input type="number" id="speed-y" class="studio-number-input" min="-5.0" max="5.0" step="0.1" value="1.0">
+              <span class="studio-unit-suffix">rad/s</span>
+            </div>
+          </div>
+
+          <div class="studio-row">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <label class="studio-switch">
+                <input type="checkbox" id="spin-z">
+                <span class="studio-slider-knob"></span>
+              </label>
+              <label for="speed-z" class="studio-row-title" data-i18n="axis_z">Z Axis Spin</label>
+            </div>
+            <div class="studio-number-wrapper">
+              <input type="number" id="speed-z" class="studio-number-input" min="-5.0" max="5.0" step="0.1" value="1.0">
+              <span class="studio-unit-suffix">rad/s</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. Performance & Motion Monitor Card -->
+        <div class="studio-card" id="perf-monitor-section">
+          <div class="studio-card-header">
+            <span class="studio-card-title" data-i18n="perf_monitor_title">📊 Performance & Motion Monitor</span>
+            <span id="perf-status-badge" class="perf-status-badge optimal">OPTIMAL 🟢</span>
+          </div>
+
+          <div class="perf-grid">
+            <div class="perf-card">
+              <div class="perf-card-header">
+                <span data-i18n="perf_live_fps">Live Rendering FPS</span>
+                <span id="perf-fps-val" class="perf-mono">60 FPS (60 Max)</span>
+              </div>
+              <div class="perf-bar-bg">
+                <div id="perf-fps-bar" class="perf-bar-fill" style="width: 100%; background: linear-gradient(90deg, #22c55e, #10b981);"></div>
+              </div>
+            </div>
+
+            <div class="perf-card">
+              <div class="perf-card-header">
+                <span data-i18n="perf_frame_latency">Frame Render Latency</span>
+                <span id="perf-latency-val" class="perf-mono">2.4 ms</span>
+              </div>
+              <div class="perf-bar-bg">
+                <div id="perf-latency-bar" class="perf-bar-fill" style="width: 15%; background: linear-gradient(90deg, #38bdf8, #0ea5e9);"></div>
+              </div>
+            </div>
+
+            <div class="perf-card">
+              <div class="perf-card-header">
+                <span data-i18n="perf_motion_magnitude">Angular Motion Magnitude</span>
+                <span id="perf-magnitude-val" class="perf-mono">0.00 rad/s (0%)</span>
+              </div>
+              <div class="perf-bar-bg">
+                <div id="perf-magnitude-bar" class="perf-bar-fill" style="width: 4%; background: linear-gradient(90deg, #f59e0b, #ec4899);"></div>
+              </div>
+            </div>
+
+            <div class="perf-card">
+              <div class="perf-card-header">
+                <span data-i18n="perf_memory_usage">Heap Memory Allocated</span>
+                <span id="perf-memory-val" class="perf-mono">Active (Low Overhead)</span>
+              </div>
+              <div class="perf-bar-bg">
+                <div id="perf-memory-bar" class="perf-bar-fill" style="width: 25%; background: linear-gradient(90deg, #a855f7, #6366f1);"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5. Physics Engine Card -->
+        <div class="studio-card">
+          <div class="studio-card-header">
+            <span class="studio-card-title" data-i18n="physics_section">⚡ Physics & Collision Dynamics</span>
+          </div>
+
+          <div class="studio-row">
+            <div class="studio-row-label">
+              <span class="studio-row-title" data-i18n="enable_physics">Enable Physics Engine</span>
+              <span class="studio-row-sub">Newtonian momentum & drag throwing</span>
+            </div>
+            <label class="studio-switch">
+              <input type="checkbox" id="enable-physics">
+              <span class="studio-slider-knob"></span>
+            </label>
+          </div>
+
+          <div class="studio-row">
+            <div class="studio-row-label">
+              <span class="studio-row-title" data-i18n="physics_floor">Ground Landing Collider</span>
+              <span class="studio-row-sub">Prevents mascot falling below screen bottom</span>
+            </div>
+            <label class="studio-switch">
+              <input type="checkbox" id="physics-floor" checked>
+              <span class="studio-slider-knob"></span>
+            </label>
+          </div>
+
+          <div class="studio-row">
+            <div class="studio-row-label">
+              <label for="physics-gravity" class="studio-row-title" data-i18n="physics_gravity">Gravity Acceleration</label>
+              <span class="studio-row-sub">Downward force multiplier</span>
+            </div>
+            <div class="studio-number-wrapper">
+              <input type="number" id="physics-gravity" class="studio-number-input" min="0.0" max="25.0" step="0.5" value="9.8">
+              <span class="studio-unit-suffix">m/s²</span>
+            </div>
+          </div>
+
+          <div class="studio-row">
+            <div class="studio-row-label">
+              <label for="physics-elasticity" class="studio-row-title" data-i18n="physics_elasticity">Bounce Elasticity</label>
+              <span class="studio-row-sub">Restitution restitution coeff (0.0–1.0)</span>
+            </div>
+            <div class="studio-number-wrapper">
+              <input type="number" id="physics-elasticity" class="studio-number-input" min="0.0" max="1.0" step="0.05" value="0.70">
+            </div>
+          </div>
+        </div>
+
+        <!-- 6. Camera & Spatial HUD Card -->
+        <div class="studio-card">
+          <div class="studio-card-header">
+            <span class="studio-card-title" data-i18n="fps_mode_section">🎥 First-Person & Spatial HUD</span>
+          </div>
+
+          <div class="studio-row">
+            <div class="studio-row-label">
+              <span class="studio-row-title" data-i18n="enable_fps_mode">First-Person Camera Mode</span>
+              <span class="studio-row-sub" data-i18n="fps_sub">Toggle with Ctrl + Shift + F</span>
+            </div>
+            <label class="studio-switch">
+              <input type="checkbox" id="enable-fps-mode">
+              <span class="studio-slider-knob"></span>
+            </label>
+          </div>
+
+          <div class="studio-row">
+            <div class="studio-row-label">
+              <span class="studio-row-title" data-i18n="show_xyz_coords">Live Spatial XYZ HUD Overlay</span>
+              <span class="studio-row-sub" data-i18n="show_xyz_sub">Toggle with Ctrl + Shift + C</span>
+            </div>
+            <label class="studio-switch">
+              <input type="checkbox" id="show-xyz-coords">
+              <span class="studio-slider-knob"></span>
+            </label>
+          </div>
+
+          <div class="studio-row">
+            <div class="studio-row-label">
+              <span class="studio-row-title" data-i18n="show_ground_grid">3D Ground Reference Grid</span>
+            </div>
+            <label class="studio-switch">
+              <input type="checkbox" id="show-ground-grid">
+              <span class="studio-slider-knob"></span>
+            </label>
+          </div>
+
+          <button id="reset-camera-btn" class="studio-btn-primary" style="margin-top: 8px; width: 100%;" data-i18n="reset_camera">Reset Camera & Position 🔄</button>
+        </div>
+
+        <!-- 8. Viewport Controls Help Card -->
+        <div class="studio-card help-section">
+          <div class="studio-card-header">
+            <span class="studio-card-title" data-i18n="viewport_controls">🖱️ Viewport Controls (Blender Style)</span>
+          </div>
+          <div class="help-grid">
+            <div class="help-row">
+              <span data-i18n="orbit">Orbit (Rotate)</span>
+              <strong data-i18n="orbit_sub">MMB (or Alt+Left) Drag</strong>
+            </div>
+            <div class="help-row">
+              <span data-i18n="pan">Pan (Translate)</span>
+              <strong data-i18n="pan_sub">Shift + MMB (or Left) Drag</strong>
+            </div>
+            <div class="help-row">
+              <span data-i18n="roll_spin">Z-Axis Spin (Roll)</span>
+              <strong data-i18n="roll_spin_sub">Ctrl + Left Arc Drag</strong>
+            </div>
+            <div class="help-row">
+              <span data-i18n="zoom">Zoom (Depth)</span>
+              <strong data-i18n="zoom_sub">Scroll Wheel (Depth)</strong>
+            </div>
+            <div class="help-row">
+              <span data-i18n="ortho">Orthographic Views</span>
+              <strong data-i18n="ortho_sub">Keys 1 (Front), 3 (Right), 7 (Top)</strong>
+            </div>
+            <div class="help-row">
+              <span data-i18n="reset_view">Opposite / Reset</span>
+              <strong data-i18n="reset_view_sub">Key 9 (180°) / Key . or F (Reset)</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- FPS Mode Center Crosshair Target Overlay -->
+  <div id="fps-crosshair" class="fps-crosshair hidden" style="pointer-events: none;">+</div>
+
+  <!-- Mascot 3D Speech Bubble Overlay with Auto-Fadeout & Actions -->
+  <div id="mascot-speech-bubble" class="mascot-speech-bubble hidden">
+    <div class="speech-bubble-envelope-badge" title="Mascot Mail Reply">💌</div>
+    <div id="speech-bubble-text" class="speech-bubble-text">...</div>
+    <div class="speech-bubble-actions">
+      <button id="speech-bubble-speak" class="speech-bubble-action-btn" title="Read aloud (Voice TTS)">🔊</button>
+      <button id="speech-bubble-copy" class="speech-bubble-action-btn" title="Copy to clipboard">📋</button>
+      <button id="speech-bubble-close" class="speech-bubble-action-btn" title="Dismiss">×</button>
+    </div>
+    <div class="speech-bubble-tail"></div>
+  </div>
+
+  <!-- Direct Mascot Desktop Chat Bar (Chat without opening settings) -->
+  <div id="desktop-direct-chat-container" class="desktop-direct-chat-container">
+    <button id="direct-chat-toggle" class="direct-chat-toggle-btn" title="Toggle Quick Chat">💌</button>
+    <div class="direct-chat-input-wrapper">
+      <input type="text" id="direct-chat-input" class="direct-chat-input" placeholder="Type to chat with mascot..." maxlength="220" autocomplete="off" />
+      <button id="direct-chat-send" class="direct-chat-send-btn" title="Send Mail to Mascot">✉️</button>
+      <button id="direct-chat-font-btn" class="direct-chat-font-btn" title="Quick Font Picker">🔤</button>
+      <button id="direct-chat-history" class="direct-chat-history-btn" title="Open Mailbox Archive">📜</button>
+      <button id="btn-toggle-devlab-direct" class="direct-chat-font-btn" title="Open Autonomous Coding Agent (DevLab)" style="color: #38bdf8;">💻</button>
+    </div>
+    <div id="direct-chat-thinking" class="direct-chat-thinking hidden">
+      <span class="thinking-quill">🪶</span> <span class="thinking-label">Writing letter...</span>
+    </div>
+
+    <!-- Quick Font Floating Menu -->
+    <div id="direct-chat-font-menu" class="direct-chat-font-menu hidden">
+      <div class="font-menu-title">🔤 Mascot Chat Font</div>
+      <div class="font-menu-presets">
+        <button class="font-preset-btn" data-font="inherit">⚡ System Default</button>
+        <button class="font-preset-btn" data-font="'Segoe UI', system-ui, sans-serif">✨ Segoe UI</button>
+        <button class="font-preset-btn" data-font="'Comic Sans MS', cursive, sans-serif">🐰 Comic Sans</button>
+        <button class="font-preset-btn" data-font="'Quicksand', 'Nunito', sans-serif">🌸 Rounded Soft</button>
+        <button class="font-preset-btn" data-font="'Consolas', monospace">💻 Monospace</button>
+        <button class="font-preset-btn" data-font="'Georgia', serif">📜 Vintage Serif</button>
+        <button class="font-preset-btn" data-font="'Segoe Print', cursive">✍️ Handwritten</button>
+      </div>
+      <button id="btn-open-studio-font-settings" class="font-more-settings-btn">⚙️ Open Full Font Settings</button>
+    </div>
+  </div>
+
+  <!-- Mascot Letterbox / Mail History Archive Drawer -->
+  <div id="mascot-letterbox-drawer" class="mascot-letterbox-drawer hidden">
+    <div class="letterbox-header">
+      <div class="letterbox-title">📬 Mascot Mailbox</div>
+      <button id="letterbox-close" class="letterbox-close-btn" title="Close Mailbox">×</button>
+    </div>
+    <div id="letterbox-list" class="letterbox-list">
+      <div class="letterbox-empty">No letters in your mailbox yet. Send a message to start!</div>
+    </div>
+  </div>
+
+  <!-- 💻 Codex-Class DevLab Autonomous Coding Console -->
+  <div id="devlab-agent-panel" class="devlab-agent-panel hidden">
+    <!-- Sleek Top Navigation Bar -->
+    <div class="devlab-header">
+      <div class="devlab-brand-area">
+        <span class="devlab-brand-icon">⚡</span>
+        <span class="devlab-brand-text">CODEX DEVLAB</span>
+        <span id="devlab-status-badge" class="devlab-badge ready"><span class="badge-dot"></span> Ready</span>
+      </div>
+
+      <!-- Center Pill: Model Selector & Pull -->
+      <div class="devlab-model-pill">
+        <span class="devlab-pill-icon">🧠</span>
+        <select id="devlab-model-select" class="devlab-model-select" title="Active Local Model">
+          <option value="llama3.2:latest" selected>llama3.2:latest (Installed ✅)</option>
+          <option value="qwen2.5-coder:3b">qwen2.5-coder:3b (Coder Specialized)</option>
+          <option value="qwen2.5-coder:7b">qwen2.5-coder:7b (High Performance)</option>
+          <option value="deepseek-coder:6.7b">deepseek-coder:6.7b</option>
+        </select>
+        <button id="btn-devlab-pull-model" class="devlab-btn-ghost devlab-pill-btn" style="display: none;" title="Pull model into Ollama">📥 Pull</button>
+      </div>
+
+      <!-- Right Actions -->
+      <div class="devlab-header-actions">
+        <button id="btn-devlab-ai-bundle" class="devlab-btn-pill" title="Export AI Telemetry and Diagnostics Bundle">📊 Telemetry</button>
+        <button id="btn-devlab-open-folder" class="devlab-btn-pill" title="Open Workspace Directory in Explorer">📁 Workspace</button>
+        <button id="btn-close-devlab" class="devlab-close-btn" title="Close Codex DevLab">×</button>
+      </div>
+    </div>
+
+    <!-- Main Two-Column Canvas Layout -->
+    <div class="devlab-workspace-grid">
+      <!-- Left Column: Conversational Stream & Chat Input -->
+      <div class="devlab-chat-column">
+        <div class="devlab-column-header">
+          <span class="devlab-column-title">Agent Session</span>
+          <button id="btn-devlab-clear-stream" class="devlab-btn-ghost devlab-btn-mini" title="Clear Timeline">🗑️ Clear</button>
+        </div>
+
+        <!-- Chat / Step Stream Container -->
+        <div id="devlab-timeline" class="devlab-stream-container">
+          <div class="devlab-empty-timeline">
+            <div class="devlab-empty-icon">✨</div>
+            <div class="devlab-empty-title">Codex Autonomous Studio</div>
+            <div class="devlab-empty-subtitle">Instruct the agent below to write C/C++ image tools, algorithms, or scripts. It will plan, compile, heal compiler errors, and run binaries automatically.</div>
+          </div>
+        </div>
+
+        <!-- Sleek Bottom Input Box -->
+        <div class="devlab-input-card">
+          <!-- Suggestion Chips -->
+          <div class="devlab-suggestion-chips">
+            <button class="devlab-chip" data-template="c_negative">🖼️ BMP Negative</button>
+            <button class="devlab-chip" data-template="c_edge_detect">🎨 Sobel Filter</button>
+            <button class="devlab-chip" data-template="c_fractal">🌀 Mandelbrot</button>
+            <button class="devlab-chip" data-template="c_raytracer">⚡ Raytracer</button>
+            <button class="devlab-chip" data-template="python_data">🐍 Python Script</button>
+          </div>
+
+          <div class="devlab-input-row">
+            <textarea id="devlab-prompt-input" class="devlab-prompt-textarea" rows="2" placeholder="Ask Codex to build, compile, or debug anything... (Ctrl+Enter to Run)"></textarea>
+            <div class="devlab-input-btns">
+              <button id="btn-devlab-run" class="devlab-btn-submit" title="Run Codex Task">
+                <span class="devlab-btn-icon">⚡</span> Run
+              </button>
+              <button id="btn-devlab-stop" class="devlab-btn-stop" style="display: none;" title="Cancel Task">
+                ⏹ Stop
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Interactive Canvas & Terminal Hub -->
+      <div class="devlab-canvas-column">
+        <!-- Canvas Tab Bar -->
+        <div class="devlab-canvas-tabs">
+          <div class="devlab-tab-group">
+            <button id="tab-btn-code" class="devlab-tab-btn active">📄 Code Canvas</button>
+            <button id="tab-btn-terminal" class="devlab-tab-btn">💻 Terminal & CLI</button>
+            <button id="tab-btn-files" class="devlab-tab-btn">📁 Workspace Files <span id="devlab-files-count" class="devlab-tab-count">(0)</span></button>
+          </div>
+          <div class="devlab-canvas-actions">
+            <button id="btn-devlab-copy-terminal" class="devlab-btn-ghost devlab-btn-mini" style="display: none;" title="Copy terminal log">📋 Copy Log</button>
+          </div>
+        </div>
+
+        <!-- Tab 1: Code Canvas (In-place editor/viewer) -->
+        <div id="devlab-tab-pane-code" class="devlab-canvas-pane active">
+          <div class="devlab-code-toolbar">
+            <div class="devlab-code-file-tag">
+              <span class="devlab-code-icon">📄</span>
+              <span id="devlab-active-filename">workspace/code.c</span>
+            </div>
+            <div class="devlab-code-actions">
+              <button id="btn-devlab-code-run" class="devlab-btn-primary devlab-btn-mini">▶ Run</button>
+              <button id="btn-devlab-code-save" class="devlab-btn-ghost devlab-btn-mini">💾 Save</button>
+              <button id="btn-devlab-code-copy" class="devlab-btn-ghost devlab-btn-mini">📋 Copy</button>
+            </div>
+          </div>
+          <div class="devlab-code-wrapper">
+            <textarea id="devlab-code-editor" class="devlab-code-textarea" spellcheck="false" placeholder="// Select a file from Workspace Files or run a prompt to view generated code here..."></textarea>
+          </div>
+        </div>
+
+        <!-- Tab 2: Live Terminal & Compiler Diagnostics -->
+        <div id="devlab-tab-pane-terminal" class="devlab-canvas-pane">
+          <div id="devlab-terminal-output" class="devlab-terminal-output">Ready. Select a quick goal or enter a prompt.</div>
+          <!-- Terminal CLI Input -->
+          <div class="devlab-terminal-cli">
+            <span class="devlab-terminal-prompt">$</span>
+            <input type="text" id="devlab-terminal-input" class="devlab-terminal-input" placeholder="Run command in ./workspace (e.g. ./negative_image.exe, dir, python)..." autocomplete="off" />
+            <button id="btn-devlab-terminal-exec" class="devlab-btn-ghost devlab-btn-mini" title="Execute command">▶ Run</button>
+            <button id="btn-devlab-ask-agent-fix" class="devlab-btn-ghost devlab-btn-ask-fix devlab-btn-mini" style="display: none;" title="Send last compiler error to Codex to fix">⚡ Ask Codex to Fix</button>
+          </div>
+        </div>
+
+        <!-- Tab 3: Workspace Files Grid -->
+        <div id="devlab-tab-pane-files" class="devlab-canvas-pane">
+          <div id="devlab-workspace-files" class="devlab-files-grid">
+            <div class="devlab-empty-files">Workspace is empty. Run a prompt to generate code and binaries!</div>
+          </div>
+        </div>
+
+        <!-- Bottom Minimalist Environment Doctor Strip -->
+        <div class="devlab-env-strip">
+          <div class="devlab-env-chip" id="devlab-env-c">
+            <span class="devlab-env-dot ready"></span>
+            <span class="devlab-env-label">C/C++:</span>
+            <span class="devlab-env-val">MSVC + GCC Shim</span>
+          </div>
+          <div class="devlab-env-chip" id="devlab-env-python">
+            <span class="devlab-env-dot ready"></span>
+            <span class="devlab-env-label">Python:</span>
+            <span class="devlab-env-val">3.13</span>
+          </div>
+          <div class="devlab-env-chip" id="devlab-env-node">
+            <span class="devlab-env-dot ready"></span>
+            <span class="devlab-env-label">Node:</span>
+            <span class="devlab-env-val">v24</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 🖼️ Antigravity / Codex Visual Artifact Modal (for BMP/Image inspection) -->
+    <div id="devlab-artifact-modal" class="devlab-modal hidden">
+      <div class="devlab-modal-dialog devlab-artifact-dialog">
+        <div class="devlab-modal-header">
+          <div class="devlab-modal-title">
+            <span class="devlab-modal-icon">🖼️</span>
+            <span id="devlab-artifact-filename">artifact.bmp</span>
+            <span id="devlab-artifact-meta"></span>
+          </div>
+          <button id="btn-devlab-artifact-close" class="devlab-close-btn">×</button>
+        </div>
+        <div class="devlab-modal-body devlab-artifact-body">
+          <img id="devlab-artifact-img" class="devlab-artifact-img" alt="Artifact Preview" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="renderer.js"></script>
+</body>
+
+</html>

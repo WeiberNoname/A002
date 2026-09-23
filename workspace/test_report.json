@@ -1,0 +1,203 @@
+{
+  "timestamp": "2026-09-23T14:57:48.029Z",
+  "summary": {
+    "total": 23,
+    "passed": 23,
+    "failed": 0,
+    "passRate": "100%",
+    "durationMs": 9179,
+    "allPassed": true
+  },
+  "environment": {
+    "platform": "win32",
+    "arch": "x64",
+    "node": "v24.13.0",
+    "cwd": "C:\\Users\\space\\.gemini\\antigravity-ide\\scratch\\Daysome-Project-T1000-V1 Ready"
+  },
+  "suites": [
+    {
+      "id": "settingsmanager_defaults_fallback_merging",
+      "name": "SettingsManager defaults & fallback merging",
+      "status": "passed",
+      "startTime": 1790175458850,
+      "durationMs": 1,
+      "error": null
+    },
+    {
+      "id": "physicsengine_velocity_boundary_collision_calculations",
+      "name": "PhysicsEngine velocity & boundary collision calculations",
+      "status": "passed",
+      "startTime": 1790175458851,
+      "durationMs": 0,
+      "error": null
+    },
+    {
+      "id": "12_locale_key_parity_default_mascot_translations",
+      "name": "12-Locale Key Parity & default_mascot translations",
+      "status": "passed",
+      "startTime": 1790175458851,
+      "durationMs": 4,
+      "error": null
+    },
+    {
+      "id": "appstore_reactive_state_subscriber_notifications",
+      "name": "AppStore reactive state & subscriber notifications",
+      "status": "passed",
+      "startTime": 1790175458855,
+      "durationMs": 0,
+      "error": null
+    },
+    {
+      "id": "eventbus_channels_wildcards_and_reactive_settings_proxy",
+      "name": "EventBus channels, wildcards, and Reactive Settings Proxy",
+      "status": "passed",
+      "startTime": 1790175458855,
+      "durationMs": 0,
+      "error": null
+    },
+    {
+      "id": "gpuassetmanager_recursive_vram_texture_disposal",
+      "name": "GPUAssetManager recursive VRAM & texture disposal",
+      "status": "passed",
+      "startTime": 1790175458855,
+      "durationMs": 0,
+      "error": null
+    },
+    {
+      "id": "preload_script_security_isolation_configuration",
+      "name": "Preload Script & Security Isolation configuration",
+      "status": "passed",
+      "startTime": 1790175458855,
+      "durationMs": 1,
+      "error": null
+    },
+    {
+      "id": "soundmanager_volume_clamping_state_snapshot",
+      "name": "SoundManager volume clamping & state snapshot",
+      "status": "passed",
+      "startTime": 1790175458856,
+      "durationMs": 2,
+      "error": null
+    },
+    {
+      "id": "scenestagemanager_model_fallback_resilience",
+      "name": "SceneStageManager & model fallback resilience",
+      "status": "passed",
+      "startTime": 1790175458858,
+      "durationMs": 0,
+      "error": null
+    },
+    {
+      "id": "settingsmanager_texture_flag_key_defaults_and_serialization",
+      "name": "SettingsManager texture & flag key defaults and serialization",
+      "status": "passed",
+      "startTime": 1790175458858,
+      "durationMs": 0,
+      "error": null
+    },
+    {
+      "id": "llmdirectorengine_companion_conversations_persona_customization_safety_guardrails",
+      "name": "LLMDirectorEngine companion conversations, persona customization & safety guardrails",
+      "status": "passed",
+      "startTime": 1790175458858,
+      "durationMs": 1735,
+      "error": null
+    },
+    {
+      "id": "assetregistrymanager_3d_ingestion_scenestagemanager_scanning",
+      "name": "AssetRegistryManager 3D Ingestion & SceneStageManager Scanning",
+      "status": "passed",
+      "startTime": 1790175460593,
+      "durationMs": 0,
+      "error": null
+    },
+    {
+      "id": "humanoidmascotbuilder_procedural_3d_humanoid_skeletal_animations",
+      "name": "HumanoidMascotBuilder procedural 3D humanoid & skeletal animations",
+      "status": "passed",
+      "startTime": 1790175460593,
+      "durationMs": 2,
+      "error": null
+    },
+    {
+      "id": "screenvisionservice_local_multimodal_vision_engine",
+      "name": "ScreenVisionService local multimodal vision engine",
+      "status": "passed",
+      "startTime": 1790175460595,
+      "durationMs": 1,
+      "error": null
+    },
+    {
+      "id": "visioncaptionsynthesizerservice_native_multilingual_variables_11_personas_s2t_converter",
+      "name": "VisionCaptionSynthesizerService native multilingual variables, 11 personas & S2T converter",
+      "status": "passed",
+      "startTime": 1790175460598,
+      "durationMs": 0,
+      "error": null
+    },
+    {
+      "id": "speechsynthesisservice_offline_tts_engine_voice_resolution",
+      "name": "SpeechSynthesisService offline TTS engine & voice resolution",
+      "status": "passed",
+      "startTime": 1790175460599,
+      "durationMs": 1,
+      "error": null
+    },
+    {
+      "id": "clean_desktop_companion_integrity_safe_overlay_archival",
+      "name": "Clean Desktop Companion Integrity & Safe Overlay Archival",
+      "status": "passed",
+      "startTime": 1790175460600,
+      "durationMs": 1,
+      "error": null
+    },
+    {
+      "id": "localimagegenservice_multi_style_synthesis_auto_inference",
+      "name": "LocalImageGenService multi-style synthesis & auto-inference",
+      "status": "passed",
+      "startTime": 1790175460601,
+      "durationMs": 8,
+      "error": null
+    },
+    {
+      "id": "mascotmailservice_3d_mail_flight_directchatui_speech_bubble",
+      "name": "MascotMailService 3D mail flight & DirectChatUI speech bubble",
+      "status": "passed",
+      "startTime": 1790175460609,
+      "durationMs": 3,
+      "error": null
+    },
+    {
+      "id": "codingagentengine_autonomous_react_loop_tool_execution",
+      "name": "CodingAgentEngine autonomous ReAct loop & tool execution",
+      "status": "passed",
+      "startTime": 1790175460614,
+      "durationMs": 2,
+      "error": null
+    },
+    {
+      "id": "toolchainmanager_discovery_environment_injection_gcc_shim",
+      "name": "ToolchainManager discovery, environment injection & GCC shim",
+      "status": "passed",
+      "startTime": 1790175460622,
+      "durationMs": 2930,
+      "error": null
+    },
+    {
+      "id": "telemetryservice_ai_feedback_bundle_continuous_learning",
+      "name": "TelemetryService AI feedback bundle & continuous learning",
+      "status": "passed",
+      "startTime": 1790175463555,
+      "durationMs": 1908,
+      "error": null
+    },
+    {
+      "id": "hello_world_in_c_with_gcc_shim_and_powershell",
+      "name": "Hello World in C with GCC shim and PowerShell",
+      "status": "passed",
+      "startTime": 1790175465464,
+      "durationMs": 2565,
+      "error": null
+    }
+  ]
+}
